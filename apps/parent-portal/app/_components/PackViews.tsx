@@ -1,7 +1,7 @@
 import type {
   MentorPackViewPayload,
   ParentPackDigestPayload,
-} from "../../../../packages/shared/src/contracts/pack";
+} from "@empathiq/shared/contracts/pack";
 
 export function ParentPackDigestView({
   digest,

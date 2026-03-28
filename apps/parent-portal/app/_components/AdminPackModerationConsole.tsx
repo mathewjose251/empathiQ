@@ -7,7 +7,7 @@ import type {
   ModerationQueueItem,
   UpdateModerationDecisionInput,
   UpdateModerationDecisionResult,
-} from "../../../../packages/shared/src/contracts/pack";
+} from "@empathiq/shared/contracts/pack";
 
 const isStaticPreview = process.env.NEXT_PUBLIC_STATIC_PREVIEW === "true";
 

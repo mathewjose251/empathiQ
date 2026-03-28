@@ -5,15 +5,15 @@ import type {
   MentorPackViewPayload,
   PackFeedPayload,
   ParentPackDigestPayload,
-} from "../../../../packages/shared/src/contracts/pack";
+} from "@empathiq/shared/contracts/pack";
 import type {
   AdminPagePayload,
   MentorPagePayload,
   OverviewPagePayload,
   ParentPagePayload,
   TeenPreviewPagePayload,
-} from "../../../../packages/shared/src/contracts/webPortal";
-import type { WorkshopPagePayload } from "../../../../packages/shared/src/contracts/workshops";
+} from "@empathiq/shared/contracts/webPortal";
+import type { WorkshopPagePayload } from "@empathiq/shared/contracts/workshops";
 import {
   getAdminPayload,
   getMentorPayload,

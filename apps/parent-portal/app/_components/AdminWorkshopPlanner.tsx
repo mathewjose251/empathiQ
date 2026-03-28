@@ -1,4 +1,4 @@
-import type { WorkshopPagePayload } from "../../../../packages/shared/src/contracts/workshops";
+import type { WorkshopPagePayload } from "@empathiq/shared/contracts/workshops";
 
 function accentClass(accent?: "cyan" | "mint" | "amber") {
   return accent ? ` workshop-module-${accent}` : "";

@@ -4,8 +4,8 @@ import type {
   WorkshopModule,
   WorkshopPagePayload,
   WorkshopRoadmapPhase,
-} from "../../../../packages/shared/src/contracts/workshops";
-import type { MetricData, NavItem } from "../../../../packages/shared/src/contracts/webPortal";
+} from "@empathiq/shared/contracts/workshops";
+import type { MetricData, NavItem } from "@empathiq/shared/contracts/webPortal";
 
 const workshopNav: NavItem[] = [
   { href: "/", label: "Overview" },

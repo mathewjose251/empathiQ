@@ -11,7 +11,7 @@ import type {
   TeenMissionChoice,
   TimelineItem,
   MetricData,
-} from "../../../../packages/shared/src/contracts/webPortal";
+} from "@empathiq/shared/contracts/webPortal";
 
 export const ecosystemNav: NavItem[] = [
   { href: "/admin", label: "Admin" },

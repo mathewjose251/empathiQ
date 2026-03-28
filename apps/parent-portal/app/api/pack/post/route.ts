@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import type { CreatePackPostInput } from "../../../../../../packages/shared/src/contracts/pack";
+import type { CreatePackPostInput } from "@empathiq/shared/contracts/pack";
 import { createPackPost } from "../../../_data/packData";
 
 export async function POST(request: Request) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import type { ReportPackPostInput } from "../../../../../../packages/shared/src/contracts/pack";
+import type { ReportPackPostInput } from "@empathiq/shared/contracts/pack";
 import { reportPackPost } from "../../../_data/packData";
 
 export async function POST(request: Request) {

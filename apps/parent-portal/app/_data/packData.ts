@@ -22,7 +22,7 @@ import type {
   UpdatePackConsentResult,
   UpdateModerationDecisionInput,
   UpdateModerationDecisionResult,
-} from "../../../../packages/shared/src/contracts/pack";
+} from "@empathiq/shared/contracts/pack";
 
 const PACK_ID = "pack-lantern-07";
 const PACK_NAME = "Pack Lantern 07";

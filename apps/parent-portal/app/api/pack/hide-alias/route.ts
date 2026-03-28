@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import type { HidePackAliasInput } from "../../../../../../packages/shared/src/contracts/pack";
+import type { HidePackAliasInput } from "@empathiq/shared/contracts/pack";
 import { hidePackAlias } from "../../../_data/packData";
 
 export async function POST(request: Request) {

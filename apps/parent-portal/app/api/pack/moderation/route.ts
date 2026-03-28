@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import type { UpdateModerationDecisionInput } from "../../../../../../packages/shared/src/contracts/pack";
+import type { UpdateModerationDecisionInput } from "@empathiq/shared/contracts/pack";
 import {
   getModerationQueue,
   updateModerationDecision,

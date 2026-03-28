@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import type { NavItem } from "../../../../packages/shared/src/contracts/webPortal";
+import type { NavItem } from "@empathiq/shared/contracts/webPortal";
 
 interface AppShellProps {
   eyebrow: string;

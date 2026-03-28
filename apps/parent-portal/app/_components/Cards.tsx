@@ -6,7 +6,7 @@ import type {
   PanelData,
   PortalCardData,
   TimelineItem,
-} from "../../../../packages/shared/src/contracts/webPortal";
+} from "@empathiq/shared/contracts/webPortal";
 
 export function PortalCardGrid({ cards }: { cards: PortalCardData[] }) {
   return (

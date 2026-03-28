@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import type { UpdatePackConsentInput } from "../../../../../../packages/shared/src/contracts/pack";
+import type { UpdatePackConsentInput } from "@empathiq/shared/contracts/pack";
 import { updatePackConsent } from "../../../_data/packData";
 
 export async function PATCH(request: Request) {

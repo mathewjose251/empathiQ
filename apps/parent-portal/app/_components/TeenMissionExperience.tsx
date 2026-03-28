@@ -15,8 +15,8 @@ import type {
   ReportPackPostResult,
   UpdatePackConsentInput,
   UpdatePackConsentResult,
-} from "../../../../packages/shared/src/contracts/pack";
-import type { SpotlightContent, TeenMissionChoice } from "../../../../packages/shared/src/contracts/webPortal";
+} from "@empathiq/shared/contracts/pack";
+import type { SpotlightContent, TeenMissionChoice } from "@empathiq/shared/contracts/webPortal";
 
 interface TeenMissionExperienceProps {
   story: SpotlightContent;
