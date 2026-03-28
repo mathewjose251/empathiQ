@@ -1,0 +1,11 @@
+{
+  "name": "teen-mobile",
+  "private": true,
+  "main": "expo-router/entry",
+  "dependencies": {
+    "expo": "^53.0.0",
+    "nativewind": "^4.1.23",
+    "react": "^19.0.0",
+    "react-native": "^0.79.0"
+  }
+}

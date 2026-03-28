@@ -1,0 +1,424 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  TEEN
+  PARENT
+  MENTOR
+  ADMIN
+}
+
+enum PackStatus {
+  FORMING
+  ACTIVE
+  ARCHIVED
+}
+
+enum MembershipRole {
+  MEMBER
+  FACILITATOR
+}
+
+enum MissionStatus {
+  DRAFT
+  PUBLISHED
+  RETIRED
+}
+
+enum AttemptStatus {
+  STARTED
+  COMPLETED
+  ABANDONED
+}
+
+enum TrapCategory {
+  ACCURATE_THINKING
+  CATASTROPHIZING
+  ALL_OR_NOTHING
+  MIND_READING
+  OVERGENERALIZATION
+  LABELING
+  EMOTIONAL_REASONING
+  SHOULD_STATEMENTS
+}
+
+enum PackPostStatus {
+  PENDING_REVIEW
+  PUBLISHED
+  BLOCKED
+  ESCALATED
+  EXPIRED
+}
+
+enum AliasStatus {
+  ACTIVE
+  ROTATED
+  RETIRED
+}
+
+enum ReactionKind {
+  I_RELATE
+  I_TRIED_THIS
+  THIS_HELPED
+}
+
+enum SafetyFlagType {
+  SELF_HARM
+  SUICIDE_RISK
+  ABUSE_OR_NEGLECT
+  IDENTITY_LEAK
+  DOXXING
+  SUBSTANCE_USE
+  VIOLENCE_RISK
+}
+
+enum SafetyFlagStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum ModerationDecision {
+  PUBLISH
+  KEEP_BLOCKED
+  ESCALATE_TO_ADMIN
+  REQUEST_MANUAL_REVIEW
+  EXPIRE
+}
+
+enum IdentityAccessReason {
+  IMMINENT_HARM
+  DOXXING_OR_IDENTITY_LEAK
+  LEGAL_REQUEST
+  CLINICAL_ESCALATION
+  TRUST_AND_SAFETY_REVIEW
+}
+
+enum PackDigestAudience {
+  PARENT
+  MENTOR
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  passwordHash   String
+  role           UserRole
+  displayName    String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  teenProfile    TeenProfile?
+  parentProfile  ParentProfile?
+  mentorProfile  MentorProfile?
+  packMemberships PackMembership[]
+}
+
+model TeenProfile {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  preferredName      String
+  birthDate          DateTime
+  onboardingStage    String?
+  packId             String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pack               Pack?              @relation(fields: [packId], references: [id])
+  parentLinks        ParentTeenLink[]   @relation("TeenToParentLinks")
+  missionAttempts    MissionAttempt[]
+  packReflections    PackReflection[]
+  insightSnapshots   InsightSnapshot[]
+}
+
+model ParentProfile {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  relationshipLabel  String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teenLinks          ParentTeenLink[]   @relation("ParentToTeenLinks")
+}
+
+model MentorProfile {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  specialty          String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  managedPacks       Pack[]             @relation("PackMentor")
+  insightSnapshots   InsightSnapshot[]
+}
+
+model ParentTeenLink {
+  id                 String        @id @default(cuid())
+  parentId           String
+  teenId             String
+  consentGrantedAt   DateTime?
+  isPrimaryGuardian  Boolean       @default(false)
+  createdAt          DateTime      @default(now())
+  parent             ParentProfile @relation("ParentToTeenLinks", fields: [parentId], references: [id], onDelete: Cascade)
+  teen               TeenProfile   @relation("TeenToParentLinks", fields: [teenId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, teenId])
+}
+
+model Pack {
+  id                 String             @id @default(cuid())
+  name               String
+  status             PackStatus         @default(FORMING)
+  mentorId           String
+  maxMembers         Int                @default(8)
+  ageBand            String?
+  cycleStart         DateTime?
+  cycleEnd           DateTime?
+  aliasRotationDays  Int                @default(7)
+  isClosed           Boolean            @default(true)
+  parentRawAccessBlocked Boolean        @default(true)
+  mentorRawAccessRestricted Boolean     @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  mentor             MentorProfile      @relation("PackMentor", fields: [mentorId], references: [id], onDelete: Restrict)
+  teens              TeenProfile[]
+  memberships        PackMembership[]
+  reflections        PackReflection[]
+  aliases            PackAlias[]
+  digests            PackDigest[]
+  identityAccessAudits PackIdentityAccessAudit[]
+
+  @@index([mentorId, status])
+}
+
+model PackMembership {
+  id                 String          @id @default(cuid())
+  userId             String
+  packId             String
+  role               MembershipRole  @default(MEMBER)
+  isPeerPostingEnabled Boolean       @default(true)
+  privacyAcknowledgedAt DateTime?
+  joinedAt           DateTime        @default(now())
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pack               Pack            @relation(fields: [packId], references: [id], onDelete: Cascade)
+  aliases            PackAlias[]
+  reflections        PackReflection[]
+  reactions          PackReaction[]
+  identityAccessAudits PackIdentityAccessAudit[]
+
+  @@unique([userId, packId])
+}
+
+model PackAlias {
+  id                 String          @id @default(cuid())
+  packId             String
+  membershipId       String
+  alias              String
+  status             AliasStatus     @default(ACTIVE)
+  effectiveFrom      DateTime        @default(now())
+  effectiveTo        DateTime?
+  pack               Pack            @relation(fields: [packId], references: [id], onDelete: Cascade)
+  membership         PackMembership  @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  reflections        PackReflection[]
+
+  @@unique([packId, alias, effectiveFrom])
+  @@index([membershipId, status])
+}
+
+model Mission {
+  id                 String                 @id @default(cuid())
+  slug               String                 @unique
+  title              String
+  narrativeIntro     String
+  sensoryPrompt      String?
+  status             MissionStatus          @default(DRAFT)
+  estimatedMinutes   Int
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  decisionOptions    MissionDecisionOption[]
+  attempts           MissionAttempt[]
+}
+
+model MissionDecisionOption {
+  id                 String              @id @default(cuid())
+  missionId          String
+  label              String
+  narrativeOutcome   String?
+  sortOrder          Int
+  mission            Mission             @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  trapLinks          MissionChoiceTrap[]
+  missionChoices     MissionChoice[]
+
+  @@unique([missionId, sortOrder])
+}
+
+model ThinkingTrap {
+  id                 String              @id @default(cuid())
+  code               TrapCategory        @unique
+  label              String
+  description        String
+  severityWeight     Int                 @default(1)
+  missionLinks       MissionChoiceTrap[]
+  missionChoices     MissionChoice[]
+}
+
+model MissionChoiceTrap {
+  id                 String               @id @default(cuid())
+  decisionOptionId   String
+  thinkingTrapId     String
+  decisionOption     MissionDecisionOption @relation(fields: [decisionOptionId], references: [id], onDelete: Cascade)
+  thinkingTrap       ThinkingTrap         @relation(fields: [thinkingTrapId], references: [id], onDelete: Cascade)
+
+  @@unique([decisionOptionId, thinkingTrapId])
+}
+
+model MissionAttempt {
+  id                 String          @id @default(cuid())
+  teenId             String
+  missionId          String
+  status             AttemptStatus   @default(STARTED)
+  startedAt          DateTime        @default(now())
+  completedAt        DateTime?
+  teen               TeenProfile     @relation(fields: [teenId], references: [id], onDelete: Cascade)
+  mission            Mission         @relation(fields: [missionId], references: [id], onDelete: Restrict)
+  choices            MissionChoice[]
+  reflection         PackReflection?
+
+  @@index([teenId, startedAt])
+}
+
+model MissionChoice {
+  id                 String               @id @default(cuid())
+  missionAttemptId   String
+  decisionOptionId   String
+  thinkingTrapId     String
+  capturedAt         DateTime             @default(now())
+  missionAttempt     MissionAttempt       @relation(fields: [missionAttemptId], references: [id], onDelete: Cascade)
+  decisionOption     MissionDecisionOption @relation(fields: [decisionOptionId], references: [id], onDelete: Restrict)
+  thinkingTrap       ThinkingTrap         @relation(fields: [thinkingTrapId], references: [id], onDelete: Restrict)
+
+  @@index([thinkingTrapId, capturedAt])
+  @@index([missionAttemptId, capturedAt])
+}
+
+model PackReflection {
+  id                 String          @id @default(cuid())
+  packId             String
+  teenId             String
+  membershipId       String
+  missionAttemptId   String          @unique
+  aliasId            String?
+  displayAlias       String
+  bodyCiphertext     String
+  bodyPreview        String?
+  branchLabel        String?
+  moodTag            String?
+  thinkingTrapCode   TrapCategory?
+  status             PackPostStatus  @default(PENDING_REVIEW)
+  publishedAt        DateTime?
+  expiresAt          DateTime?
+  createdAt          DateTime        @default(now())
+  pack               Pack            @relation(fields: [packId], references: [id], onDelete: Cascade)
+  teen               TeenProfile     @relation(fields: [teenId], references: [id], onDelete: Cascade)
+  membership         PackMembership  @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  alias              PackAlias?      @relation(fields: [aliasId], references: [id], onDelete: SetNull)
+  missionAttempt     MissionAttempt  @relation(fields: [missionAttemptId], references: [id], onDelete: Cascade)
+  reactions          PackReaction[]
+  moderationEvents   PackModerationEvent[]
+  safetyFlags        PackSafetyFlag[]
+
+  @@index([packId, createdAt])
+  @@index([packId, status, publishedAt])
+}
+
+model PackReaction {
+  id                 String          @id @default(cuid())
+  postId             String
+  membershipId       String
+  kind               ReactionKind
+  createdAt          DateTime        @default(now())
+  post               PackReflection  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  membership         PackMembership  @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, membershipId, kind])
+}
+
+model PackSafetyFlag {
+  id                 String            @id @default(cuid())
+  postId             String
+  flagType           SafetyFlagType
+  status             SafetyFlagStatus  @default(OPEN)
+  confidence         Float?
+  detectedBy         String?
+  notes              String?
+  createdAt          DateTime          @default(now())
+  resolvedAt         DateTime?
+  post               PackReflection    @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([flagType, status, createdAt])
+}
+
+model PackModerationEvent {
+  id                 String              @id @default(cuid())
+  postId             String
+  actorUserId        String?
+  decision           ModerationDecision
+  notes              String?
+  createdAt          DateTime            @default(now())
+  post               PackReflection      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+}
+
+model PackIdentityAccessAudit {
+  id                 String               @id @default(cuid())
+  packId             String
+  membershipId       String?
+  actorUserId        String
+  approvedByUserId   String?
+  reason             IdentityAccessReason
+  notes              String?
+  createdAt          DateTime             @default(now())
+  pack               Pack                 @relation(fields: [packId], references: [id], onDelete: Cascade)
+  membership         PackMembership?      @relation(fields: [membershipId], references: [id], onDelete: SetNull)
+
+  @@index([packId, createdAt])
+  @@index([actorUserId, createdAt])
+}
+
+model PackDigest {
+  id                 String             @id @default(cuid())
+  packId             String
+  audience           PackDigestAudience
+  weekStart          DateTime
+  summary            String
+  topThemes          Json
+  flaggedCount       Int                @default(0)
+  createdAt          DateTime           @default(now())
+  pack               Pack               @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  @@unique([packId, audience, weekStart])
+  @@index([audience, weekStart])
+}
+
+model InsightSnapshot {
+  id                    String         @id @default(cuid())
+  teenId                String
+  mentorId              String?
+  weekStart             DateTime
+  topTrapCodes          TrapCategory[]
+  trapCounts            Json
+  parentSummary         String
+  sidewaysInvitation    String
+  createdAt             DateTime       @default(now())
+  teen                  TeenProfile    @relation(fields: [teenId], references: [id], onDelete: Cascade)
+  mentor                MentorProfile? @relation(fields: [mentorId], references: [id], onDelete: SetNull)
+
+  @@unique([teenId, weekStart])
+  @@index([mentorId, weekStart])
+}

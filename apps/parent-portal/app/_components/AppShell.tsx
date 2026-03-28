@@ -1,0 +1,35 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+
+import type { NavItem } from "../../../../packages/shared/src/contracts/webPortal";
+
+interface AppShellProps {
+  eyebrow: string;
+  navItems: NavItem[];
+  children: ReactNode;
+  className?: string;
+}
+
+export function AppShell({
+  eyebrow,
+  navItems,
+  children,
+  className,
+}: AppShellProps) {
+  return (
+    <main className={["shell", className].filter(Boolean).join(" ")}>
+      <section className="topbar">
+        <div className="eyebrow">{eyebrow}</div>
+        <nav className="nav-links">
+          {navItems.map((item) => (
+            <Link href={item.href} key={item.href}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </section>
+
+      {children}
+    </main>
+  );
+}

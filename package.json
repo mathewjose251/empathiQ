@@ -1,0 +1,12 @@
+{
+  "name": "empathiq",
+  "private": true,
+  "packageManager": "pnpm@10.8.1",
+  "scripts": {
+    "dev:mobile": "pnpm --filter teen-mobile start",
+    "dev:web": "pnpm --filter parent-portal dev",
+    "dev:engine": "pnpm --filter insight-engine dev",
+    "prisma:generate": "pnpm --filter @empathiq/database prisma:generate",
+    "prisma:migrate": "pnpm --filter @empathiq/database prisma:migrate"
+  }
+}
