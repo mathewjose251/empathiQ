@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_DIRECT")
 }
 
 enum UserRole {
@@ -105,6 +106,53 @@ enum PackDigestAudience {
   MENTOR
 }
 
+enum EscalationSeverity {
+  MONITOR
+  CLINICAL_REFERRAL
+  EMERGENCY
+}
+
+enum EscalationState {
+  OPENED
+  SUPERVISOR_NOTIFIED
+  PARENT_INFORMED
+  REFERRAL_SENT
+  REFERRAL_ACCEPTED
+  CLOSED
+}
+
+enum AlumniConversationStatus {
+  PENDING
+  SCHEDULED
+  COMPLETED
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  IN_APP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  READ
+}
+
+enum ChallengeSubmissionType {
+  TEXT
+  VOICE
+  MIXED
+}
+
+enum CertificationStatus {
+  PENDING
+  CERTIFIED
+  RENEWAL_DUE
+  INACTIVE
+}
+
 model User {
   id             String          @id @default(cuid())
   email          String          @unique
@@ -120,20 +168,28 @@ model User {
 }
 
 model TeenProfile {
-  id                 String             @id @default(cuid())
-  userId             String             @unique
-  preferredName      String
-  birthDate          DateTime
-  onboardingStage    String?
-  packId             String?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pack               Pack?              @relation(fields: [packId], references: [id])
-  parentLinks        ParentTeenLink[]   @relation("TeenToParentLinks")
-  missionAttempts    MissionAttempt[]
-  packReflections    PackReflection[]
-  insightSnapshots   InsightSnapshot[]
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  preferredName         String
+  birthDate             DateTime
+  onboardingStage       String?
+  packId                String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pack                  Pack?              @relation(fields: [packId], references: [id])
+  parentLinks           ParentTeenLink[]   @relation("TeenToParentLinks")
+  missionAttempts       MissionAttempt[]
+  packReflections       PackReflection[]
+  insightSnapshots      InsightSnapshot[]
+  intakeRecord          IntakeRecord?
+  dailySignals          DailySignal[]
+  challengeAttempts     ChallengeAttempt[]
+  escalationEvents      EscalationEvent[]
+  alumniConversationsAsCurrentTeen AlumniConversation[] @relation("CurrentTeenToAlumni")
+  alumniConversationsAsAlumni AlumniConversation[] @relation("AlumniToCurrentTeen")
+  sessionBriefs         SessionBrief[]
+  mentorSessions        MentorSession[]
 }
 
 model ParentProfile {
@@ -147,14 +203,19 @@ model ParentProfile {
 }
 
 model MentorProfile {
-  id                 String             @id @default(cuid())
-  userId             String             @unique
-  specialty          String?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  managedPacks       Pack[]             @relation("PackMentor")
-  insightSnapshots   InsightSnapshot[]
+  id                        String             @id @default(cuid())
+  userId                    String             @unique
+  specialty                 String?
+  createdAt                 DateTime           @default(now())
+  updatedAt                 DateTime           @updatedAt
+  user                      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  managedPacks              Pack[]             @relation("PackMentor")
+  insightSnapshots          InsightSnapshot[]
+  escalationEvents          EscalationEvent[]
+  sessionBriefs             SessionBrief[]
+  mentorSessions            MentorSession[]
+  trainingCohorts           TrainingCohort[]   @relation("MentorToTrainingCohort")
+  mentorProfileExtended     MentorProfileExtended?
 }
 
 model ParentTeenLink {
@@ -421,4 +482,234 @@ model InsightSnapshot {
 
   @@unique([teenId, weekStart])
   @@index([mentorId, weekStart])
+}
+
+model IntakeRecord {
+  id                      String         @id @default(cuid())
+  teenId                  String         @unique
+  ageBand                 String
+  primaryConcerns         String[]
+  householdType           String
+  caregiverStabilityFlag  Boolean        @default(false)
+  safetyGateResponses     SafetyGateResponse?
+  completedAt             DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+  teen                    TeenProfile    @relation(fields: [teenId], references: [id], onDelete: Cascade)
+
+  @@index([ageBand])
+  @@index([completedAt])
+}
+
+model SafetyGateResponse {
+  id                  String         @id @default(cuid())
+  intakeRecordId      String         @unique
+  question1Response   String
+  question2Response   String
+  question3Response   String
+  isFlagged           Boolean        @default(false)
+  flaggedAt           DateTime?
+  triageDecisionId    String?
+  createdAt           DateTime       @default(now())
+  intakeRecord        IntakeRecord   @relation(fields: [intakeRecordId], references: [id], onDelete: Cascade)
+  triageDecision      TriageDecision? @relation(fields: [triageDecisionId], references: [id], onDelete: SetNull)
+
+  @@index([isFlagged, createdAt])
+}
+
+model DailySignal {
+  id                  String         @id @default(cuid())
+  teenId              String
+  moodSignal          Int
+  freeTextNote        String?
+  arcPosition         Int?
+  submittedAt         DateTime       @default(now())
+  teen                TeenProfile    @relation(fields: [teenId], references: [id], onDelete: Cascade)
+
+  @@index([teenId, submittedAt])
+  @@index([submittedAt])
+}
+
+model ChallengeAttempt {
+  id                  String                  @id @default(cuid())
+  teenId              String
+  missionArcId        String?
+  submissionType      ChallengeSubmissionType
+  textContent         String?
+  voiceNoteUrl        String?
+  isOffline           Boolean                 @default(false)
+  submittedAt         DateTime                @default(now())
+  teen                TeenProfile             @relation(fields: [teenId], references: [id], onDelete: Cascade)
+
+  @@index([teenId, submittedAt])
+  @@index([submittedAt])
+}
+
+model EscalationEvent {
+  id                    String               @id @default(cuid())
+  teenId                String
+  mentorId              String
+  severity              EscalationSeverity
+  state                 EscalationState      @default(OPENED)
+  disclosurySummary     String
+  checklistState        Json?
+  clinicalPartnerId     String?
+  isResolved            Boolean              @default(false)
+  resolvedAt            DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  teen                  TeenProfile          @relation(fields: [teenId], references: [id], onDelete: Cascade)
+  mentor                MentorProfile        @relation(fields: [mentorId], references: [id], onDelete: Restrict)
+  triageDecisions       TriageDecision[]
+  handoverRecords       HandoverRecord[]
+  notificationLogs      NotificationLog[]
+
+  @@index([teenId, createdAt])
+  @@index([mentorId, state])
+  @@index([state, createdAt])
+}
+
+model TriageDecision {
+  id                    String               @id @default(cuid())
+  escalationEventId     String
+  safetyGateResponseId  String?
+  severity              EscalationSeverity
+  assessmentNotes       String?
+  decidedAt             DateTime             @default(now())
+  escalationEvent       EscalationEvent      @relation(fields: [escalationEventId], references: [id], onDelete: Cascade)
+  safetyGateResponse    SafetyGateResponse?  @relation(fields: [safetyGateResponseId], references: [id], onDelete: SetNull)
+
+  @@index([escalationEventId])
+}
+
+model HandoverRecord {
+  id                    String               @id @default(cuid())
+  escalationEventId     String
+  clinicalPartnerName   String
+  clinicalPartnerEmail  String
+  referralLetterUrl     String?
+  acceptedAt            DateTime?
+  notes                 String?
+  createdAt             DateTime             @default(now())
+  escalationEvent       EscalationEvent      @relation(fields: [escalationEventId], references: [id], onDelete: Cascade)
+
+  @@index([escalationEventId])
+  @@index([acceptedAt])
+}
+
+model NotificationLog {
+  id                    String               @id @default(cuid())
+  escalationEventId     String?
+  recipientUserId       String
+  channel               NotificationChannel
+  status                NotificationStatus   @default(PENDING)
+  title                 String
+  body                  String
+  metadata              Json?
+  sentAt                DateTime?
+  readAt                DateTime?
+  failureReason         String?
+  createdAt             DateTime             @default(now())
+  escalationEvent       EscalationEvent?     @relation(fields: [escalationEventId], references: [id], onDelete: SetNull)
+
+  @@index([recipientUserId, createdAt])
+  @@index([channel, status])
+  @@index([createdAt])
+}
+
+model AlumniConversation {
+  id                    String                      @id @default(cuid())
+  currentTeenId         String
+  alumniMentorId        String
+  status                AlumniConversationStatus    @default(PENDING)
+  requestedAt           DateTime                    @default(now())
+  scheduledFor          DateTime?
+  completedAt           DateTime?
+  feedbackNotes         String?
+  currentTeen           TeenProfile                 @relation("CurrentTeenToAlumni", fields: [currentTeenId], references: [id], onDelete: Cascade)
+  alumniMentor          TeenProfile                 @relation("AlumniToCurrentTeen", fields: [alumniMentorId], references: [id], onDelete: Cascade)
+
+  @@index([currentTeenId, status])
+  @@index([alumniMentorId, status])
+  @@index([requestedAt])
+}
+
+model SessionBrief {
+  id                    String               @id @default(cuid())
+  mentorId              String
+  teenId                String
+  weekStart             DateTime
+  patternSummary        String
+  suggestedFocus        String
+  openingQuestion       String
+  challengeHighlights   Json?
+  dailySignalInsights   Json?
+  createdAt             DateTime             @default(now())
+  mentor                MentorProfile        @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  teen                  TeenProfile          @relation(fields: [teenId], references: [id], onDelete: Cascade)
+
+  @@unique([mentorId, teenId, weekStart])
+  @@index([weekStart])
+}
+
+model MentorSession {
+  id                    String               @id @default(cuid())
+  mentorId              String
+  teenId                String
+  scheduledFor          DateTime
+  completedAt           DateTime?
+  sessionNotes          String?
+  safetyFlagsRaised     String[]
+  positiveShifts        String?
+  escalationTriggered   Boolean              @default(false)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  mentor                MentorProfile        @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  teen                  TeenProfile          @relation(fields: [teenId], references: [id], onDelete: Cascade)
+
+  @@index([mentorId, scheduledFor])
+  @@index([teenId, scheduledFor])
+  @@index([completedAt])
+}
+
+model ClinicalPartner {
+  id                    String               @id @default(cuid())
+  name                  String
+  email                 String               @unique
+  phone                 String?
+  specialization       String[]
+  geography            String[]
+  isAvailable           Boolean              @default(true)
+  maxCaseload           Int?
+  currentCaseload       Int                  @default(0)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  @@index([isAvailable])
+  @@index([geography])
+}
+
+model TrainingCohort {
+  id                    String               @id @default(cuid())
+  name                  String
+  startDate             DateTime
+  endDate               DateTime
+  status                String
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  mentors               MentorProfile[]      @relation("MentorToTrainingCohort")
+
+  @@index([status])
+}
+
+model MentorProfileExtended {
+  id                    String               @id @default(cuid())
+  mentorId              String               @unique
+  certificationStatus   CertificationStatus  @default(PENDING)
+  trainingCohortId      String?
+  specialization        String[]
+  maxTeensPerSession    Int                  @default(1)
+  isActive              Boolean              @default(true)
+  mentor                MentorProfile        @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+
+  @@index([certificationStatus])
 }
