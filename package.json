@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.8.1",
   "scripts": {
+    "build": "npm --prefix apps/parent-portal run build",
     "dev:mobile": "pnpm --filter teen-mobile start",
     "dev:web": "pnpm --filter parent-portal dev",
     "dev:engine": "pnpm --filter insight-engine dev",
