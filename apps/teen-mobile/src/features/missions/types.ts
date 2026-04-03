@@ -2,7 +2,11 @@ export type ThinkingTrapCode =
   | "ACCURATE_THINKING"
   | "CATASTROPHIZING"
   | "ALL_OR_NOTHING"
-  | "MIND_READING";
+  | "MIND_READING"
+  | "OVERGENERALIZATION"
+  | "LABELING"
+  | "EMOTIONAL_REASONING"
+  | "SHOULD_STATEMENTS";
 
 export interface MissionDecision {
   id: string;
@@ -13,10 +17,12 @@ export interface MissionDecision {
 
 export interface MissionStory {
   id: string;
+  slug: string;
   title: string;
   chapterLabel: string;
   prompt: string;
   atmosphere: string;
+  estimatedMinutes?: number;
   decisions: [MissionDecision, MissionDecision];
 }
 

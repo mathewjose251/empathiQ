@@ -1,0 +1,20 @@
+{
+  "name": "empathiq",
+  "private": true,
+  "description": "EmpathiQ: Empathy-based emotional wellbeing support for teens",
+  "scripts": {
+    "setup": "bash setup-npm.sh",
+    "seed": "node seed-standalone.js",
+    "dev:web": "cd apps/parent-portal && npm run dev",
+    "dev:mobile": "cd apps/teen-mobile && npm start",
+    "dev:engine": "cd services/insight-engine && npm run dev",
+    "prisma:generate": "cd packages/database && npx prisma generate",
+    "prisma:migrate": "cd packages/database && npx prisma migrate dev",
+    "build": "cd apps/parent-portal && npm run build"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ]
+}

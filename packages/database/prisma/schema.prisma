@@ -713,3 +713,161 @@ model MentorProfileExtended {
 
   @@index([certificationStatus])
 }
+
+enum WorkshopStatus {
+  PLANNING
+  INTAKE_OPEN
+  IN_PROGRESS
+  BOOSTER_PHASE
+  COMPLETED
+  ARCHIVED
+}
+
+enum BoosterStatus {
+  PENDING
+  SENT
+  COMPLETED
+  MISSED
+  ESCALATED
+}
+
+enum EnrollmentStatus {
+  PENDING
+  CONFIRMED
+  WAITLISTED
+  WITHDRAWN
+  COMPLETED
+}
+
+model Workshop {
+  id                    String               @id @default(cuid())
+  title                 String
+  description           String?
+  status                WorkshopStatus       @default(PLANNING)
+  scheduledStartDate    DateTime
+  scheduledEndDate      DateTime
+  location              String?
+  facilitatorId         String?
+  maxParticipants       Int?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  cohorts               WorkshopCohort[]
+
+  @@index([status])
+  @@index([scheduledStartDate])
+  @@index([facilitatorId])
+}
+
+model WorkshopCohort {
+  id                    String               @id @default(cuid())
+  workshopId            String
+  name                  String
+  description           String?
+  assignmentRules       String?
+  status                WorkshopStatus       @default(PLANNING)
+  maxFamilies           Int?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  workshop              Workshop             @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  enrollments           WorkshopEnrollment[]
+
+  @@index([workshopId, status])
+  @@index([status])
+}
+
+model WorkshopEnrollment {
+  id                    String               @id @default(cuid())
+  cohortId              String
+  parentUserId          String
+  status                EnrollmentStatus     @default(PENDING)
+  consentGrantedAt      DateTime?
+  intakeCompletedAt     DateTime?
+  triageCompletedAt     DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  cohort                WorkshopCohort       @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  parentUser            User                 @relation(fields: [parentUserId], references: [id], onDelete: Cascade)
+  attendanceRecords     WorkshopAttendance[]
+  boosters              WorkshopBooster[]
+  outcomes              WorkshopOutcome[]
+
+  @@unique([cohortId, parentUserId])
+  @@index([cohortId, status])
+  @@index([parentUserId, status])
+  @@index([status])
+}
+
+model WorkshopAttendance {
+  id                    String               @id @default(cuid())
+  enrollmentId          String
+  sessionNumber         Int
+  sessionDate           DateTime
+  attended              Boolean              @default(false)
+  arrivedAt             DateTime?
+  departedAt            DateTime?
+  materialsReceived     Boolean              @default(false)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  enrollment            WorkshopEnrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  sessionNotes          WorkshopSessionNote[]
+
+  @@unique([enrollmentId, sessionNumber])
+  @@index([enrollmentId, sessionDate])
+  @@index([sessionDate, attended])
+}
+
+model WorkshopSessionNote {
+  id                    String               @id @default(cuid())
+  attendanceId          String
+  facilitatorId         String?
+  noteContent           String
+  themesTags            String[]
+  contractMilestoneNote String?
+  journalMilestoneNote  String?
+  artworkMilestoneNote  String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  attendance            WorkshopAttendance   @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+
+  @@index([attendanceId])
+}
+
+model WorkshopBooster {
+  id                    String               @id @default(cuid())
+  enrollmentId          String
+  boosterDay            Int
+  boosterDate           DateTime
+  status                BoosterStatus        @default(PENDING)
+  sentAt                DateTime?
+  completedAt           DateTime?
+  completionNotes       String?
+  requiresEscalation    Boolean              @default(false)
+  escalationReason      String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  enrollment            WorkshopEnrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, boosterDay])
+  @@index([enrollmentId, boosterDay])
+  @@index([boosterDate])
+  @@index([status])
+}
+
+model WorkshopOutcome {
+  id                    String               @id @default(cuid())
+  enrollmentId          String
+  boosterCompletionRate Float?
+  academicLoadAssessment String?
+  familyToneAssessment  String?
+  referralStatus        String?
+  referralSummary       String?
+  schoolBridgeCompleted Boolean              @default(false)
+  schoolBridgeSummary   String?
+  qualityReviewScore    Float?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  enrollment            WorkshopEnrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId])
+  @@index([enrollmentId])
+}
