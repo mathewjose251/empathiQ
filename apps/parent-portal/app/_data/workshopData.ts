@@ -18,14 +18,14 @@ const workshopNav: NavItem[] = [
 
 const workshopMetrics: MetricData[] = [
   {
-    label: "2 days",
+    label: "2 mornings",
     value: "15",
-    detail: "Core sessions mapped from the DOSE family workshop runbook.",
+    detail: "Core sessions compressed into Saturday and Sunday morning delivery blocks.",
   },
   {
-    label: "30 days",
-    value: "4",
-    detail: "Booster checkpoints after the workshop to prevent drop-off.",
+    label: "Weekend span",
+    value: "9h",
+    detail: "Live programme window runs from 7:00 AM to 11:30 AM on both days.",
   },
   {
     label: "Family size",
@@ -33,9 +33,9 @@ const workshopMetrics: MetricData[] = [
     detail: "Ideal cohort size for mixing, safety, and facilitator visibility.",
   },
   {
-    label: "Support loop",
-    value: "3",
-    detail: "Parent, mentor, and school follow-through layers after delivery.",
+    label: "Booster loop",
+    value: "5",
+    detail: "Five follow-through checkpoints keep the workshop alive after the weekend.",
   },
 ];
 
@@ -167,17 +167,17 @@ const workshopRoadmap: WorkshopRoadmapPhase[] = [
 
 const dayOnePlan: WorkshopDayPlan = {
   id: "day-1",
-  label: "Day 1",
+  label: "Saturday · Day 1",
   title: "Verukal - Finding our roots",
   summary:
-    "Day 1 keeps the DOSE runbook's strong body-first and family-first tone, then deepens it with emotional safety rules, REBT-style noticing, and early parent involvement habits.",
+    "Saturday keeps the DOSE runbook's body-first and family-first tone, then deepens it with emotional safety rules, REBT-style noticing, and early parent involvement habits inside a shorter morning window.",
   checkpoint:
-    "Families leave with a shared journal, one phone-free evening task, and a baseline read on stress, connection, and repair posture.",
+    "Families leave Saturday with a shared journal, one phone-free evening task, and a baseline read on stress, connection, and repair posture before returning Sunday morning.",
   sessions: [
     {
       id: "d1-s1",
       startTime: "7:00 AM",
-      duration: "30 min",
+      duration: "20 min",
       title: "Phone surrender and Kolam welcome circle",
       tagline: "Set the tone around presence before anyone starts performing.",
       signals: ["Oxytocin", "Serotonin", "Digital reset"],
@@ -198,13 +198,13 @@ const dayOnePlan: WorkshopDayPlan = {
     },
     {
       id: "d1-s2",
-      startTime: "7:30 AM",
-      duration: "60 min",
-      title: "Barefoot Vanam walk with empathy prompts",
+      startTime: "7:20 AM",
+      duration: "40 min",
+      title: "Beach walk in silence with empathy prompts",
       tagline: "Slow the nervous system down before trying to improve communication.",
       signals: ["Serotonin", "Endorphins", "Oxytocin"],
       flow: [
-        "Use silence first, then guided empathy cards, then a shared nature object that represents the relationship today.",
+        "Use shoreline silence first, then guided empathy cards, then a shared beach object that represents the relationship today.",
         "Let facilitators hold distance so the walk stays private and non-surveillant.",
         "Close with a short group surprise debrief instead of analysis-heavy processing.",
       ],
@@ -219,9 +219,9 @@ const dayOnePlan: WorkshopDayPlan = {
     },
     {
       id: "d1-s3",
-      startTime: "8:30 AM",
-      duration: "60 min",
-      title: "Pallanguzhi and Nondi traditional games",
+      startTime: "8:00 AM",
+      duration: "45 min",
+      title: "Pallanguzhi, Nondi, and movement games",
       tagline: "Let patience, play, and role reversal do the teaching.",
       signals: ["Dopamine", "Oxytocin", "Endorphins"],
       flow: [
@@ -240,35 +240,14 @@ const dayOnePlan: WorkshopDayPlan = {
     },
     {
       id: "d1-s4",
-      startTime: "10:00 AM",
-      duration: "60 min",
-      title: "Lagori and Kho-Kho with cross-family teams",
-      tagline: "Break family hierarchy for a while so new identities can emerge.",
-      signals: ["Endorphins", "Oxytocin", "Dopamine"],
-      flow: [
-        "Mix families intentionally, let teens lead one strategy round, then use appreciation before reforming original pairs.",
-        "Keep energy high and the rules clear enough for fast participation.",
-        "Use the cool-down to convert adrenaline into genuine noticing.",
-      ],
-      enrichments: [
-        "Cross-family mixing mirrors school-based prevention models and widens empathy beyond one home.",
-        "Add respectful-cheering prompts so mistakes do not turn into shame or mockery.",
-        "Flag dysregulation quietly for follow-up instead of correcting people publicly.",
-      ],
-      adminOutputs: [
-        "Facilitator note on peer energy, regulation, and inclusion across families.",
-      ],
-    },
-    {
-      id: "d1-s5",
-      startTime: "11:00 AM",
+      startTime: "8:45 AM",
       duration: "45 min",
       title: "Walk As Me empathy reversal",
       tagline: "Give the teen leadership without making the parent powerless.",
       signals: ["Oxytocin", "Serotonin"],
       flow: [
         "Teens lead, parents ask questions only, and facilitators intervene only when correction sneaks back in.",
-        "Use the outdoors as a softer place to explore curiosity and difference.",
+        "Use the beachfront path as a softer place to explore curiosity and difference.",
         "Keep the close focused on surprise rather than explanation.",
       ],
       enrichments: [
@@ -281,8 +260,8 @@ const dayOnePlan: WorkshopDayPlan = {
       ],
     },
     {
-      id: "d1-s6",
-      startTime: "11:45 AM",
+      id: "d1-s5",
+      startTime: "9:30 AM",
       duration: "45 min",
       title: "Iru Manam back-to-back journalling",
       tagline: "Shared writing becomes the bridge from emotion to language.",
@@ -302,10 +281,31 @@ const dayOnePlan: WorkshopDayPlan = {
       ],
     },
     {
+      id: "d1-s6",
+      startTime: "10:15 AM",
+      duration: "45 min",
+      title: "Lagori and Kho-Kho with cross-family teams",
+      tagline: "Break family hierarchy for a while so new identities can emerge.",
+      signals: ["Endorphins", "Oxytocin", "Dopamine"],
+      flow: [
+        "Mix families intentionally, let teens lead one strategy round, then use appreciation before reforming original pairs.",
+        "Keep energy high and the rules clear enough for fast participation.",
+        "Use the cool-down to convert adrenaline into genuine noticing.",
+      ],
+      enrichments: [
+        "Cross-family mixing mirrors school-based prevention models and widens empathy beyond one home.",
+        "Add respectful-cheering prompts so mistakes do not turn into shame or mockery.",
+        "Flag dysregulation quietly for follow-up instead of correcting people publicly.",
+      ],
+      adminOutputs: [
+        "Facilitator note on peer energy, regulation, and inclusion across families.",
+      ],
+    },
+    {
       id: "d1-s7",
-      startTime: "12:30 PM",
+      startTime: "11:00 AM",
       duration: "30 min",
-      title: "DOSE closing circle and evening homework",
+      title: "Saturday close and evening homework",
       tagline: "End the first day with language, breath, and one doable task.",
       signals: ["Oxytocin", "Serotonin"],
       flow: [
@@ -327,17 +327,17 @@ const dayOnePlan: WorkshopDayPlan = {
 
 const dayTwoPlan: WorkshopDayPlan = {
   id: "day-2",
-  label: "Day 2",
+  label: "Sunday · Day 2",
   title: "Vazhvu - Choosing to grow",
   summary:
-    "Day 2 keeps the emotional warmth of the original runbook, but pushes harder into growth mindset, digital behaviour change, and long-tail follow-through inside the product.",
+    "Sunday keeps the emotional warmth of the original runbook, but pushes harder into growth mindset, digital behaviour change, and long-tail follow-through inside the same four-and-a-half-hour morning window.",
   checkpoint:
     "Families leave with a living contract, one family artwork, a booster schedule, and an optional school or mentor handoff path.",
   sessions: [
     {
       id: "d2-s1",
       startTime: "7:00 AM",
-      duration: "30 min",
+      duration: "25 min",
       title: "Homework share and technology obituary",
       tagline: "Name what screens have cost without making the teen the villain.",
       signals: ["Digital reset", "Serotonin"],
@@ -357,9 +357,9 @@ const dayTwoPlan: WorkshopDayPlan = {
     },
     {
       id: "d2-s2",
-      startTime: "7:30 AM",
-      duration: "60 min",
-      title: "Nature scavenger hunt by sketching",
+      startTime: "7:25 AM",
+      duration: "40 min",
+      title: "Shoreline scavenger sketch walk",
       tagline: "Replace quick capture with slow noticing.",
       signals: ["Dopamine", "Endorphins", "Oxytocin"],
       flow: [
@@ -378,8 +378,8 @@ const dayTwoPlan: WorkshopDayPlan = {
     },
     {
       id: "d2-s3",
-      startTime: "8:30 AM",
-      duration: "60 min",
+      startTime: "8:05 AM",
+      duration: "45 min",
       title: "Kai Maavu cooking challenge",
       tagline: "The teen leads, the parent supports, and food becomes family regulation.",
       signals: ["Oxytocin", "Endorphins", "Serotonin"],
@@ -399,8 +399,8 @@ const dayTwoPlan: WorkshopDayPlan = {
     },
     {
       id: "d2-s4",
-      startTime: "9:45 AM",
-      duration: "45 min",
+      startTime: "8:50 AM",
+      duration: "40 min",
       title: "Gilli-Danda and Gundu memory bridge",
       tagline: "Use memory, teaching, and flow to challenge screen-based stimulation habits.",
       signals: ["Dopamine", "Endorphins", "Oxytocin"],
@@ -420,8 +420,8 @@ const dayTwoPlan: WorkshopDayPlan = {
     },
     {
       id: "d2-s5",
-      startTime: "10:30 AM",
-      duration: "45 min",
+      startTime: "9:30 AM",
+      duration: "35 min",
       title: "Paaladai storytelling circle",
       tagline: "Parents tell stories without turning them into lessons.",
       signals: ["Oxytocin", "Serotonin"],
@@ -441,8 +441,8 @@ const dayTwoPlan: WorkshopDayPlan = {
     },
     {
       id: "d2-s6",
-      startTime: "11:15 AM",
-      duration: "45 min",
+      startTime: "10:05 AM",
+      duration: "40 min",
       title: "Flow-state family art challenge",
       tagline: "Turn the future into something the family can see on the wall.",
       signals: ["Dopamine", "Serotonin"],
@@ -462,8 +462,8 @@ const dayTwoPlan: WorkshopDayPlan = {
     },
     {
       id: "d2-s7",
-      startTime: "12:00 PM",
-      duration: "45 min",
+      startTime: "10:45 AM",
+      duration: "30 min",
       title: "DOSE family contract negotiation",
       tagline: "The contract becomes a living home workflow, not a speech.",
       signals: ["Digital reset", "Oxytocin", "Dopamine"],
@@ -483,8 +483,8 @@ const dayTwoPlan: WorkshopDayPlan = {
     },
     {
       id: "d2-s8",
-      startTime: "12:45 PM",
-      duration: "45 min",
+      startTime: "11:15 AM",
+      duration: "15 min",
       title: "Closing ceremony and DOSE pledge",
       tagline: "Turn appreciation into the bridge back to ordinary life.",
       signals: ["Oxytocin", "Serotonin", "Dopamine"],
@@ -548,9 +548,9 @@ export function getDoseWorkshopPayload(): WorkshopPagePayload {
     navItems: workshopNav,
     hero: {
       eyebrow: "Admin Workshop Ops",
-      title: "Parent + teen studio, with real follow-through.",
+      title: "Parent + teen beach workshop, with real follow-through.",
       lede:
-        "This admin module turns the DOSE family workshop into an EmpathiQ operating flow: a two-day in-person reset, a 30-day booster path, and clean handoffs into parent, mentor, and school support when needed.",
+        "This admin module turns the DOSE family workshop into an EmpathiQ operating flow: a Saturday and Sunday morning in-person reset from 7:00 AM to 11:30 AM, a 30-day booster path, and clean handoffs into parent, mentor, and school support when needed.",
     },
     metrics: workshopMetrics,
     setup: [
@@ -561,6 +561,12 @@ export function getDoseWorkshopPayload(): WorkshopPagePayload {
           "This keeps the physical sessions lively while preserving enough facilitator visibility for emotional safety.",
       },
       {
+        label: "Weekend schedule",
+        value: "Saturday + Sunday · 7:00 AM to 11:30 AM",
+        helper:
+          "The flow is intentionally built as two focused morning blocks so families stay emotionally present and can still absorb the material.",
+      },
+      {
         label: "Age band",
         value: "13-18 for the main workshop track",
         helper:
@@ -568,9 +574,9 @@ export function getDoseWorkshopPayload(): WorkshopPagePayload {
       },
       {
         label: "Venue posture",
-        value: "Nature-linked campus with indoor fallback",
+        value: "Beachside venue with shaded indoor fallback",
         helper:
-          "The walk, ground contact, and sketching activities work best when the environment itself lowers the family's pace.",
+          "The beach walk, shoreline sketching, and low-stimulation pauses work best when the environment itself lowers the family's pace.",
       },
       {
         label: "Lead team",
