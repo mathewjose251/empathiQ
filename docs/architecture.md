@@ -65,21 +65,6 @@ It adds:
 
 The first shared domain contracts for this are in [packages/shared/src/contracts/familyCare.ts](/Users/mathewjose/Documents/empathiQ/packages/shared/src/contracts/familyCare.ts).
 
-## Teen Module Blueprint
-
-The deeper product plan for the teen role now lives in [docs/teen-module-blueprint.md](/Users/mathewjose/Documents/empathiQ/docs/teen-module-blueprint.md).
-
-It expands the teen side beyond a mission demo and defines:
-
-- intake and safety gating
-- daily signal checks
-- mission lanes for school pressure, digital overload, family climate, belonging, and self-control
-- Pack journal behavior rules
-- mentor and parent bridge logic
-- the phased development roadmap for the full teen module
-
-The implementation-grade follow-up lives in [docs/teen-module-execution-plan.md](/Users/mathewjose/Documents/empathiQ/docs/teen-module-execution-plan.md), and the shared starter contracts are in [teenModule.ts](/Users/mathewjose/Documents/empathiQ/packages/shared/src/contracts/teenModule.ts).
-
 ## Pack Privacy Layer
 
 The privacy-first Pack implementation and route design are documented in [docs/pack-privacy-api.md](/Users/mathewjose/Documents/empathiQ/docs/pack-privacy-api.md).

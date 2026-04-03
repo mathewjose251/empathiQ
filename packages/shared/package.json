@@ -5,7 +5,6 @@
   "exports": {
     "./contracts/familyCare": "./src/contracts/familyCare.ts",
     "./contracts/pack": "./src/contracts/pack.ts",
-    "./contracts/teenModule": "./src/contracts/teenModule.ts",
     "./contracts/webPortal": "./src/contracts/webPortal.ts",
     "./contracts/workshops": "./src/contracts/workshops.ts",
     "./pack/assignToPack": "./src/pack/assignToPack.ts"
