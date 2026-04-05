@@ -11,14 +11,14 @@ import { getAuthContext } from "../../../../_lib/teenAuth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     // Validate auth
     const authHeader = request.headers.get("Authorization");
     const { teenId } = getAuthContext(authHeader);
 
-    const { slug } = params;
+    const { slug } = await params;
 
     if (!slug) {
       return NextResponse.json(

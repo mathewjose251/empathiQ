@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EmpathiQ Teen — Interactive Preview</title>
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --accent: #06b6d4;
+  --purple: #8b5cf6;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #334155;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+.app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 72px; }
+.page { padding: 16px; }
+
+/* Nav */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); z-index: 100; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.7rem; color: var(--muted); cursor: pointer; background: none; border: none; padding: 4px 12px; }
+.nav-item.active { color: var(--accent); }
+.nav-icon { font-size: 1.4rem; }
+
+/* Cards */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.card-cyan { border-color: var(--accent); box-shadow: 0 0 20px rgba(6,182,212,0.12); }
+.card-purple { border-color: var(--purple); box-shadow: 0 0 20px rgba(139,92,246,0.12); }
+
+/* Buttons */
+.btn { display: block; width: 100%; padding: 14px; border-radius: 16px; text-align: center; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; transition: all 0.15s; margin-bottom: 8px; }
+.btn:active { transform: scale(0.98); }
+.btn-accent { background: var(--accent); color: #000; }
+.btn-purple { background: var(--purple); color: #fff; }
+.btn-green { background: var(--green); color: #000; }
+.btn-rose { background: var(--rose); color: #fff; }
+.btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Mood grid */
+.mood-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+.mood-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.mood-item { text-align: center; padding: 12px 4px; border-radius: 16px; border: 2px solid var(--border); font-size: 1.8rem; cursor: pointer; transition: all 0.15s; background: transparent; }
+.mood-item:hover { border-color: var(--accent); background: rgba(6,182,212,0.08); }
+.mood-item.sel { border-color: var(--accent); background: rgba(6,182,212,0.15); transform: scale(1.05); }
+.mood-label { font-size: 0.65rem; color: var(--muted); display: block; margin-top: 4px; }
+
+/* Progress */
+.progress { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+.progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.4s; }
+
+/* Badges */
+.streak { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,158,11,0.15); border: 1px solid var(--amber); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; color: var(--amber); font-weight: 600; }
+.xp { display: inline-flex; align-items: center; gap: 6px; background: rgba(139,92,246,0.15); border: 1px solid var(--purple); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; color: var(--purple); font-weight: 600; }
+
+/* Story card */
+.story-card { background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(139,92,246,0.08)); border: 1px solid var(--accent); border-radius: 16px; padding: 20px; margin: 12px 0; position: relative; overflow: hidden; cursor: pointer; }
+.story-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--purple)); }
+.story-theme { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.story-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+.story-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+.story-meta { display: flex; gap: 16px; margin-top: 10px; font-size: 0.75rem; color: var(--muted); }
+
+/* Social proof */
+.social-proof { text-align: center; padding: 8px; font-size: 0.85rem; color: var(--accent); background: rgba(6,182,212,0.08); border-radius: 12px; margin: 12px 0; }
+
+/* Avatar */
+.avatar { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--purple)); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 3rem; border: 3px solid var(--accent); box-shadow: 0 0 30px rgba(6,182,212,0.2); animation: pulse 2s ease infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 20px rgba(6,182,212,0.15); } 50% { box-shadow: 0 0 35px rgba(6,182,212,0.3); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade { animation: fadeIn 0.3s ease forwards; }
+
+/* Sensory */
+.sensory { background: rgba(245,158,11,0.08); border: 1px solid var(--amber); border-radius: 12px; padding: 12px; margin: 12px 0; font-size: 0.85rem; color: var(--amber); font-style: italic; line-height: 1.6; }
+
+/* Choice cards */
+.choice { border-radius: 16px; padding: 16px; cursor: pointer; border: 2px solid var(--border); background: transparent; text-align: left; width: 100%; color: var(--text); font-family: inherit; margin-bottom: 12px; transition: all 0.15s; }
+.choice-green { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.05); }
+.choice-green:hover { border-color: var(--green); box-shadow: 0 0 20px rgba(16,185,129,0.15); }
+.choice-rose { border-color: rgba(244,63,94,0.4); background: rgba(244,63,94,0.05); }
+.choice-rose:hover { border-color: var(--rose); box-shadow: 0 0 20px rgba(244,63,94,0.15); }
+
+/* Pack */
+.pack-post { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+.pack-alias { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+.pack-text { font-size: 0.85rem; line-height: 1.5; margin-bottom: 8px; }
+.reaction { font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border); color: var(--muted); background: transparent; cursor: pointer; margin-right: 6px; }
+
+/* Tool grid */
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+.tool-item { padding: 12px; border-radius: 12px; border: 1px solid var(--border); text-align: center; font-size: 0.8rem; cursor: pointer; background: transparent; color: var(--text); }
+.tool-item:hover { border-color: var(--accent); background: rgba(6,182,212,0.05); }
+.tool-icon { font-size: 1.5rem; margin-bottom: 4px; }
+
+/* Stat row */
+.stats { display: flex; justify-content: space-around; margin: 16px 0; }
+.stat { text-align: center; }
+.stat-val { font-size: 1.6rem; font-weight: 700; }
+.stat-lbl { font-size: 0.7rem; color: var(--muted); }
+
+/* Textarea */
+textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text); font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 80px; outline: none; }
+textarea:focus { border-color: var(--accent); }
+textarea::placeholder { color: var(--muted); }
+
+/* Helpers */
+.center { text-align: center; }
+.muted { color: var(--muted); }
+.small { font-size: 0.8rem; }
+.xs { font-size: 0.7rem; }
+.accent { color: var(--accent); }
+.purple { color: var(--purple); }
+.amber { color: var(--amber); }
+.green { color: var(--green); }
+.rose { color: var(--rose); }
+.mb4 { margin-bottom: 4px; }
+.mb8 { margin-bottom: 8px; }
+.mb12 { margin-bottom: 12px; }
+.mb16 { margin-bottom: 16px; }
+.mb24 { margin-bottom: 24px; }
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+.mt24 { margin-top: 24px; }
+.flex { display: flex; align-items: center; }
+.between { justify-content: space-between; }
+.gap8 { gap: 8px; }
+.gap12 { gap: 12px; }
+.jc { justify-content: center; }
+.bold { font-weight: 700; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ============================================================
+// EmpathiQ Teen — Interactive Preview (Vanilla JS)
+// Full working demo of the teen experience
+// ============================================================
+
+const state = {
+  screen: 'onboarding',
+  onboardStep: 1,
+  mood: null,
+  concerns: [],
+  safeHome: null,
+  selfHarm: null,
+  moodChecked: false,
+  xp: 0,
+  streak: 1,
+  stories: 0,
+  pathARate: 0,
+  missionStage: 'story',
+  missionSlug: null,
+  chosenPath: null,
+  reflectionText: '',
+};
+
+const MOODS_FULL = [
+  { key: 'great', emoji: '😊', label: 'Great' },
+  { key: 'stressed', emoji: '😰', label: 'Stressed' },
+  { key: 'okay', emoji: '😐', label: 'Okay' },
+  { key: 'frustrated', emoji: '😤', label: 'Frustrated' },
+  { key: 'sad', emoji: '😢', label: 'Sad' },
+  { key: 'confused', emoji: '🤔', label: 'Confused' },
+  { key: 'confident', emoji: '😎', label: 'Confident' },
+  { key: 'tired', emoji: '😴', label: 'Tired' },
+];
+
+const MOODS_QUICK = [
+  { key: 'great', emoji: '😊', label: 'Great' },
+  { key: 'okay', emoji: '😐', label: 'Okay' },
+  { key: 'anxious', emoji: '😰', label: 'Anxious' },
+  { key: 'low', emoji: '😢', label: 'Low' },
+];
+
+const CONCERNS = [
+  { key: 'school', emoji: '📚', label: 'School Stress' },
+  { key: 'friends', emoji: '👥', label: 'Friend Drama' },
+  { key: 'family', emoji: '🏠', label: 'Family Stuff' },
+  { key: 'online', emoji: '📱', label: 'Online Life' },
+  { key: 'self', emoji: '🪞', label: 'How I See Me' },
+  { key: 'off', emoji: '😶‍🌫️', label: 'Just...Off' },
+];
+
+const MISSIONS = {
+  'night-before-finals': {
+    title: 'The Night Before Finals', theme: 'School', minutes: 5, xp: 30,
+    desc: 'Your phone lights up with an exam reminder. 40% of your grade...',
+    narrative: 'Your phone lights up at 9pm. An email from your teacher: "Reminder: Final exam tomorrow. Worth 40% of your grade."\n\nYour heart starts pounding. Your mind immediately goes into overdrive: "If I fail this, my GPA tanks. Then no good college. Then what even is the point?"\n\nYou look at your notes spread across the desk. Some of it looks familiar, most of it doesn\'t. The clock is ticking.',
+    sensory: '🫁 Pause. Feel your feet on the ground. Notice 3 things you can hear right now. You are safe in this moment.',
+    pathA: { label: 'Ground Yourself', emoji: '🌿', desc: '"Take a breath. One test doesn\'t decide my whole future. I\'ve handled pressure before. Let me make a focused study plan for the next 2 hours, then sleep."', consequence: 'You feel a small space open between the panic and reality. You make a plan: review key concepts for 90 minutes, set an alarm, and get to bed by 11. The anxiety doesn\'t vanish — but it shrinks enough that you can actually focus.', trap: 'Catastrophizing → Accurate Thinking', trapDesc: 'You caught the spiral before it consumed you. One test really doesn\'t equal your entire future.' },
+    pathB: { label: 'Spiral', emoji: '🌀', desc: '"This is it. I\'m going to fail. My entire future just fell apart in one email. There\'s no point even studying anymore — it\'s already too late."', consequence: 'Your anxiety grows into a storm. You scroll your phone for an hour trying to numb the feeling. By midnight you haven\'t studied at all, and now you\'re exhausted too. The catastrophe you predicted is starting to feel real — because you couldn\'t focus past the fear.', trap: 'Catastrophizing', trapDesc: 'One stressful moment spiraled into "my entire future is ruined." The fear became bigger than the actual problem.' },
+  },
+  'friend-text-unanswered': {
+    title: 'The Text Left on Read', theme: 'Peer', minutes: 4, xp: 25,
+    desc: "Your best friend hasn't replied in 3 hours. Your mind starts spinning...",
+    narrative: 'You sent your best friend a message three hours ago. Nothing urgent — just asking if they want to hang out this weekend.\n\nYou can see they\'ve been active on social media since then. They posted a story 20 minutes ago. But your message? Still on read.\n\nYour mind starts filling in the blanks: "They\'re ignoring me on purpose. Did I do something wrong? Maybe they don\'t actually like me anymore."',
+    sensory: '🫁 Put your phone down for a moment. Feel the texture of whatever surface is near you. Take one slow breath.',
+    pathA: { label: 'Check Your Story', emoji: '🌿', desc: '"Hold on — they\'re probably just busy. People don\'t always reply right away. I\'m making up a story that isn\'t based on facts. I\'ll give it time."', consequence: 'You put the phone down and do something else. An hour later, your friend replies: "Sorry!! Was at dentist and then got distracted. YES to this weekend!" All that worry was a story you wrote in your head.', trap: 'Mind Reading → Accurate Thinking', trapDesc: 'You caught yourself assuming what your friend was thinking — without any real evidence.' },
+    pathB: { label: 'Assume the Worst', emoji: '🌀', desc: '"They saw it and chose not to reply. They obviously don\'t care about me. Maybe I should just stop reaching out to anyone."', consequence: 'You spend the next two hours checking your phone every few minutes, spiraling deeper. You almost send a passive-aggressive follow-up text. The hurt and anger build, all based on a story you created from silence.', trap: 'Mind Reading', trapDesc: 'You filled in the silence with the worst possible meaning — and it felt completely real, even without evidence.' },
+  },
+  'mirror-moment': {
+    title: 'Mirror Moment', theme: 'Self', minutes: 3, xp: 25,
+    desc: 'You catch your reflection and your inner voice starts picking everything apart...',
+    narrative: 'You\'re getting ready to go out. You glance at the mirror and immediately your eyes zero in on the one thing you don\'t like about yourself.\n\n"Ugh." The inner voice starts: "You look terrible. Everyone is going to notice. Why can\'t you just look normal?"\n\nYou start pulling at your clothes, changing your outfit for the third time. The fun plans ahead are fading under a wave of self-criticism.',
+    sensory: '🫁 Step back from the mirror. Feel your feet on the ground. Place one hand on your chest. You are more than what you see.',
+    pathA: { label: 'Talk Back', emoji: '🌿', desc: '"Wait — I\'m focusing on one thing and ignoring everything else. My body does amazing things for me every day. I don\'t need to be perfect to show up."', consequence: 'The critical voice doesn\'t disappear entirely, but you take the power out of it. You pick an outfit you feel okay in — not perfect, just okay. And that\'s enough. You go out, and nobody notices what you were so worried about.', trap: 'All-or-Nothing → Accurate Thinking', trapDesc: 'You caught the "one flaw = everything is wrong" trap and reminded yourself that imperfect is still worthy.' },
+    pathB: { label: 'Believe the Voice', emoji: '🌀', desc: '"It\'s true. I look awful. There\'s no point going out when I feel this way about myself. Everyone will be judging me the whole time."', consequence: 'You cancel your plans. You stay home scrolling through other people\'s photos, comparing yourself. The voice gets louder. What started as one small thought became the whole story of your evening.', trap: 'All-or-Nothing Thinking', trapDesc: 'One thing you noticed became "everything is wrong." The inner critic turned a detail into a verdict.' },
+  },
+};
+
+function addXP(amount) { state.xp += amount; }
+
+function render() {
+  const app = document.getElementById('app');
+  let html = '';
+
+  switch (state.screen) {
+    case 'onboarding': html = renderOnboarding(); break;
+    case 'home': html = renderHome(); break;
+    case 'mission': html = renderMission(); break;
+    case 'stories': html = renderStories(); break;
+    case 'pack': html = renderPack(); break;
+    case 'me': html = renderMe(); break;
+    case 'toolbox': html = renderToolbox(); break;
+    case 'safety': html = renderSafety(); break;
+  }
+
+  if (state.screen !== 'onboarding' && state.screen !== 'safety') {
+    html += renderNav();
+  }
+
+  app.innerHTML = html;
+}
+
+function renderOnboarding() {
+  const step = state.onboardStep;
+  let content = '';
+
+  // Progress
+  content += `<div class="page"><div class="progress mb4"><div class="progress-fill" style="width:${step*25}%"></div></div><p class="center muted small mb24">${step} of 4</p>`;
+
+  if (step === 1) {
+    content += `<div class="fade"><h2 class="center mb16">Pick your vibe right now</h2><div class="mood-grid">`;
+    MOODS_FULL.forEach(m => {
+      content += `<button class="mood-item ${state.mood===m.key?'sel':''}" onclick="state.mood='${m.key}';render()">${m.emoji}<span class="mood-label">${m.label}</span></button>`;
+    });
+    content += `</div><p class="center muted small mt16">Tap the one that fits</p>`;
+    content += `<button class="btn btn-accent mt24" ${!state.mood?'disabled':''} onclick="state.onboardStep=2;render()">Next</button>`;
+    content += `</div>`;
+  }
+
+  else if (step === 2) {
+    content += `<div class="fade"><h2 class="center mb8">What's been heavy lately?</h2><p class="center muted small mb16">Pick up to 3</p><div class="mood-grid mood-grid-2">`;
+    CONCERNS.forEach(c => {
+      const sel = state.concerns.includes(c.key);
+      content += `<button class="mood-item ${sel?'sel':''}" onclick="toggleConcern('${c.key}')">${c.emoji}<span class="mood-label">${c.label}</span></button>`;
+    });
+    content += `</div><button class="btn btn-accent mt24" ${state.concerns.length===0?'disabled':''} onclick="state.onboardStep=3;render()">Next</button>`;
+    content += `<button class="btn btn-outline mt8" onclick="state.onboardStep=1;render()">Back</button></div>`;
+  }
+
+  else if (step === 3) {
+    content += `<div class="fade"><h2 class="center mb8">One more thing...</h2><p class="center muted mb24" style="font-size:0.85rem">So we can make this the right fit for you</p>`;
+    content += `<div class="card mb16"><p style="font-size:0.9rem;margin-bottom:12px">Do you feel safe at home?</p><div class="flex gap12">`;
+    content += `<button class="btn btn-outline" style="flex:1;${state.safeHome===true?'background:var(--green);color:#000;border-color:var(--green)':''}" onclick="state.safeHome=true;render()">Yes</button>`;
+    content += `<button class="btn btn-outline" style="flex:1;${state.safeHome===false?'background:var(--rose);color:#fff;border-color:var(--rose)':''}" onclick="state.safeHome=false;render()">Not always</button></div></div>`;
+    content += `<div class="card"><p style="font-size:0.9rem;margin-bottom:12px">Have you had thoughts of hurting yourself?</p><div class="flex gap12">`;
+    content += `<button class="btn btn-outline" style="flex:1;${state.selfHarm===false?'background:var(--green);color:#000;border-color:var(--green)':''}" onclick="state.selfHarm=false;render()">No</button>`;
+    content += `<button class="btn btn-outline" style="flex:1;${state.selfHarm===true?'background:var(--rose);color:#fff;border-color:var(--rose)':''}" onclick="state.selfHarm=true;render()">Yes</button></div></div>`;
+    content += `<p class="center muted xs mt16">Your answers are private and help us keep you safe</p>`;
+    content += `<button class="btn btn-accent mt24" ${state.safeHome===null||state.selfHarm===null?'disabled':''} onclick="state.onboardStep=4;render()">Next</button>`;
+    content += `<button class="btn btn-outline mt8" onclick="state.onboardStep=2;render()">Back</button></div>`;
+  }
+
+  else if (step === 4) {
+    content += `<div class="fade center"><h2 class="mb8">Meet your guide</h2><p class="muted small mb16">This character grows with you</p>`;
+    content += `<div class="avatar">🌱</div><p class="bold" style="font-size:1.1rem">Seedling Stage</p><p class="accent small mb24">Level 1 — Just getting started</p>`;
+    content += `<div class="flex jc gap8 mb24">`;
+    ['🌱','🌿','🌳','🌲','✨'].forEach((e,i) => {
+      content += `<div style="width:44px;height:44px;border-radius:50%;border:2px solid ${i===0?'var(--accent)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:1.4rem;opacity:${i===0?1:0.3};${i===0?'background:rgba(6,182,212,0.1)':''}">${e}</div>`;
+    });
+    content += `</div><div class="social-proof">🎯 247 teens started their journey today</div>`;
+    content += `<div class="mt16 mb16"><span class="streak">🔥 Day 1 — Your streak starts now</span></div>`;
+    content += `<button class="btn btn-accent" onclick="finishOnboarding()">Start My First Story</button>`;
+    content += `<button class="btn btn-outline mt8" onclick="state.onboardStep=3;render()">Back</button></div>`;
+  }
+
+  content += `</div>`;
+  return content;
+}
+
+function renderHome() {
+  let c = `<div class="page"><div class="flex between mb16"><div><p class="muted small">Good ${new Date().getHours()<12?'morning':new Date().getHours()<17?'afternoon':'evening'}</p><p class="bold" style="font-size:1.2rem">Hey there 👋</p></div><div class="flex gap8">`;
+  c += `<span class="streak">🔥 ${state.streak}</span><span class="xp">🌱 ${state.xp}</span></div></div>`;
+
+  if (!state.moodChecked) {
+    c += `<div class="card card-cyan fade"><p class="center bold mb12">How are you feeling?</p><div class="mood-grid">`;
+    MOODS_QUICK.forEach(m => {
+      c += `<button class="mood-item" onclick="checkMood('${m.key}')">${m.emoji}<span class="mood-label">${m.label}</span></button>`;
+    });
+    c += `</div></div>`;
+  } else {
+    const moodEmoji = MOODS_QUICK.find(m=>m.key===state.mood)?.emoji || '😊';
+    c += `<div class="card fade" style="border-color:var(--amber);background:rgba(245,158,11,0.05)"><p class="center" style="color:var(--amber)">${moodEmoji} ${state.mood==='great'?'Feeling great! Let\'s keep that energy.':state.mood==='anxious'?'Feeling anxious? That\'s okay.':state.mood==='low'?'Feeling low? We\'re here for you.':'Checked in. Let\'s make today count.'}</p><p class="center muted xs">+10 XP earned</p></div>`;
+  }
+
+  c += `<div class="social-proof">🌊 ${Math.floor(Math.random()*30)+20} teens checked in today</div>`;
+
+  if (state.moodChecked) {
+    const slug = state.mood==='anxious'?'night-before-finals':state.mood==='low'?'mirror-moment':'friend-text-unanswered';
+    const m = MISSIONS[slug];
+    c += `<div class="story-card fade" onclick="startMission('${slug}')"><div class="story-theme">Matched For You</div><div class="story-title">${m.title}</div><div class="story-desc">${m.desc}</div><div class="story-meta"><span>⏱ ${m.minutes} min</span><span>🏷 ${m.theme}</span><span>⭐ +${m.xp} XP</span></div></div>`;
+    c += `<button class="btn btn-accent" onclick="startMission('${slug}')">Start This Story</button>`;
+  } else {
+    c += `<div class="card card-cyan center mt16"><p class="bold">Check in to unlock today's story</p><p class="muted small">Tap a mood above to get a mission matched to how you feel</p></div>`;
+  }
+
+  c += `<div class="flex gap8 mt16">`;
+  c += `<button class="card" style="flex:1;text-align:center;cursor:pointer" onclick="go('me')"><div style="font-size:1.3rem">📊</div><div class="small muted">My Week</div></button>`;
+  c += `<button class="card" style="flex:1;text-align:center;cursor:pointer" onclick="go('toolbox')"><div style="font-size:1.3rem">🧰</div><div class="small muted">Toolbox</div></button>`;
+  c += `<button class="card" style="flex:1;text-align:center;cursor:pointer" onclick="go('pack')"><div style="font-size:1.3rem">👥</div><div class="small muted">My Pack</div></button>`;
+  c += `</div></div>`;
+  return c;
+}
+
+function renderMission() {
+  const m = MISSIONS[state.missionSlug];
+  if (!m) return `<div class="page"><p>Mission not found</p></div>`;
+  let c = `<div class="page">`;
+
+  if (state.missionStage === 'story') {
+    c += `<div class="flex between mb12"><span class="muted small" style="cursor:pointer" onclick="go('home')">← Back</span><span class="accent small">Chapter 3 of 8</span></div>`;
+    c += `<div class="progress"><div class="progress-fill" style="width:37%"></div></div>`;
+    c += `<h3 class="mt16 mb4">${m.title}</h3><div class="story-theme">${m.theme}</div>`;
+    c += `<div class="card card-cyan mt16 fade"><p style="font-size:0.95rem;line-height:1.7;white-space:pre-line">${m.narrative}</p></div>`;
+    c += `<div class="sensory">${m.sensory}</div>`;
+    c += `<button class="btn btn-accent mt8" onclick="state.missionStage='choice';render()">I'm Ready to Choose</button>`;
+  }
+
+  else if (state.missionStage === 'choice') {
+    c += `<h3 class="center mb16 fade">What do you do?</h3>`;
+    c += `<button class="choice choice-green fade" onclick="choosePath('A')"><div class="flex gap8 mb8"><span style="font-size:1.2rem">${m.pathA.emoji}</span><span class="bold green">Path A</span></div><p style="font-size:0.9rem">${m.pathA.desc}</p><p class="muted small mt8">⭐ +${m.xp} XP</p></button>`;
+    c += `<div class="center muted mb12" style="font-size:1.5rem">or</div>`;
+    c += `<button class="choice choice-rose fade" onclick="choosePath('B')"><div class="flex gap8 mb8"><span style="font-size:1.2rem">${m.pathB.emoji}</span><span class="bold rose">Path B</span></div><p style="font-size:0.9rem">${m.pathB.desc}</p><p class="muted small mt8">⭐ +${Math.floor(m.xp*0.5)} XP</p></button>`;
+    c += `<p class="center muted small mt16">❤️ Both paths teach you something. No wrong choice.</p>`;
+  }
+
+  else if (state.missionStage === 'consequence') {
+    const path = state.chosenPath === 'A' ? m.pathA : m.pathB;
+    const isA = state.chosenPath === 'A';
+    c += `<div class="card fade" style="border-color:${isA?'var(--green)':'var(--rose)'};background:${isA?'rgba(16,185,129,0.05)':'rgba(244,63,94,0.05)'}"><p class="bold mb8" style="color:${isA?'var(--green)':'var(--rose)'}">You chose Path ${state.chosenPath} ${path.emoji}</p><p style="font-size:0.9rem;line-height:1.6">${path.consequence}</p></div>`;
+    c += `<div class="card card-purple mt16 fade"><div class="xs bold purple mb8" style="text-transform:uppercase;letter-spacing:1px">🚨 Thinking Trap Spotted</div><div class="bold mb8">${path.trap}</div><p class="muted small">${path.trapDesc}</p></div>`;
+    c += `<button class="btn btn-accent mt16" onclick="state.missionStage='reflect';render()">Continue to Reflect</button>`;
+  }
+
+  else if (state.missionStage === 'reflect') {
+    const path = state.chosenPath === 'A' ? m.pathA : m.pathB;
+    c += `<div class="fade"><p class="bold mb8">What did this feel like?</p>`;
+    c += `<textarea id="reflection" placeholder="Type your anonymous reflection here..." oninput="state.reflectionText=this.value"></textarea>`;
+    c += `<button class="btn btn-purple mt8" onclick="shareReflection()" ${state.reflectionText.length<8?'disabled':''}>Share with My Pack</button>`;
+    c += `<p class="center muted xs mt8">Anonymous. Only your pack sees this.</p>`;
+    c += `<button class="btn btn-outline mt16" onclick="skipReflection()">Skip for now</button>`;
+    c += `<div class="flex jc gap12 mt16"><span class="xp">⭐ +${state.chosenPath==='A'?m.xp:Math.floor(m.xp*0.5)} XP</span><span class="streak">🔥 Day ${state.streak}</span></div></div>`;
+  }
+
+  c += `</div>`;
+  return c;
+}
+
+function renderStories() {
+  const stories = [
+    { slug: 'night-before-finals', title: 'The Night Before Finals', theme: 'School', desc: 'Exam anxiety spiral', min: 5, xp: 30 },
+    { slug: 'grade-on-test', title: 'One Bad Grade', theme: 'School', desc: 'One B = total failure?', min: 4, xp: 25 },
+    { slug: 'presentation-fear', title: 'Speaking in Class', theme: 'School', desc: 'Public speaking terror', min: 4, xp: 25 },
+    { slug: 'friend-text-unanswered', title: 'Left on Read', theme: 'Peer', desc: "They saw it and didn't reply", min: 4, xp: 25 },
+    { slug: 'social-media-comparison', title: 'The Scroll That Stings', theme: 'Digital', desc: "Everyone's life looks better", min: 4, xp: 25 },
+    { slug: 'mirror-moment', title: 'Mirror Moment', theme: 'Self', desc: 'The inner critic speaks up', min: 3, xp: 25 },
+    { slug: 'family-dinner-tension', title: 'Dinner Table Tension', theme: 'Family', desc: 'One comment ruins the meal', min: 4, xp: 25 },
+    { slug: 'crush-worry', title: 'Crush Confusion', theme: 'Peer', desc: 'One text changes everything', min: 4, xp: 25 },
+    { slug: 'phone-late-night', title: 'Phone at Midnight', theme: 'Digital', desc: "Can't stop scrolling", min: 3, xp: 20 },
+    { slug: 'mistake-at-work', title: 'The Mistake', theme: 'Self', desc: 'One error = broken', min: 4, xp: 25 },
+  ];
+  let c = `<div class="page"><h3 class="mb4">Stories</h3><p class="muted small mb16">${state.stories} of ${stories.length} explored</p>`;
+  c += `<div class="progress mb16"><div class="progress-fill" style="width:${(state.stories/stories.length)*100}%"></div></div>`;
+  stories.forEach(s => {
+    const available = !!MISSIONS[s.slug];
+    c += `<div class="story-card ${available?'':''}fade" ${available?`onclick="startMission('${s.slug}')"`:'style="opacity:0.5"'}><div class="story-theme">${s.theme}</div><div class="story-title">${s.title}</div><div class="story-desc">${s.desc}</div><div class="story-meta"><span>⏱ ${s.min} min</span><span>⭐ +${s.xp} XP</span>${!available?'<span style="color:var(--amber)">Coming soon</span>':''}</div></div>`;
+  });
+  c += `</div>`;
+  return c;
+}
+
+function renderPack() {
+  const posts = [
+    { alias: '🌊 Quiet Orbit', text: "I realized I was catastrophizing about the exam. Like, one test really doesn't decide my life. It felt good to name it.", hearts: 3, relates: 2, time: '2h' },
+    { alias: '🔮 Soft Thunder', text: "The friend-text mission hit different today. I always assume people are mad at me when they don't reply. Working on it.", hearts: 5, relates: 4, time: '4h' },
+    { alias: '🌙 Calm Static', text: "Chose the spiral path on mirror moment. Seeing the consequence written out... that's literally what happens in my head. Wild.", hearts: 7, relates: 3, time: '6h' },
+    { alias: '🌿 Neon Fern', text: "Day 12 streak! The daily check-in is actually helping me notice my moods before they take over.", hearts: 4, relates: 1, time: '8h' },
+  ];
+  let c = `<div class="page"><h3 class="mb4">My Pack</h3><p class="muted small mb16">7 members · Safe space</p>`;
+  posts.forEach(p => {
+    c += `<div class="pack-post fade"><div class="pack-alias">${p.alias}</div><div class="pack-text">${p.text}</div><div class="flex between"><div><button class="reaction">💛 ${p.hearts}</button><button class="reaction">🤝 I relate</button></div><span class="muted xs">${p.time} ago</span></div></div>`;
+  });
+  c += `<div class="card center" style="border-style:dashed"><p class="muted small">Complete today's story to share with your pack</p><button class="btn btn-accent mt8" style="font-size:0.85rem" onclick="go('home')">Start Today's Story</button></div></div>`;
+  return c;
+}
+
+function renderMe() {
+  const stages = ['🌱','🌿','🌳','🌲','✨'];
+  const names = ['Seedling','Sprout','Sapling','Tree','Radiant'];
+  const thresholds = [0,500,1000,2500,5000];
+  let level = 0;
+  for (let i = thresholds.length-1; i >= 0; i--) { if (state.xp >= thresholds[i]) { level = i; break; } }
+  const next = level < 4 ? thresholds[level+1] : 5000;
+  const pct = Math.min(100, (state.xp / next) * 100);
+
+  let c = `<div class="page center"><div class="avatar">${stages[level]}</div><p class="bold" style="font-size:1.2rem">${names[level]} · Level ${level+1}</p>`;
+  c += `<div class="progress" style="margin:8px 24px"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+  c += `<p class="muted small mb16">${state.xp} / ${next} XP to ${names[Math.min(level+1,4)]}</p>`;
+
+  c += `<div class="stats"><div class="stat"><div class="stat-val amber">🔥 ${state.streak}</div><div class="stat-lbl">Day Streak</div></div><div class="stat"><div class="stat-val accent">${state.stories}</div><div class="stat-lbl">Stories</div></div><div class="stat"><div class="stat-val green">${state.pathARate}%</div><div class="stat-lbl">Path A Rate</div></div></div>`;
+
+  // Weekly pattern
+  c += `<div class="card card-purple mt16" style="text-align:left"><p class="bold mb8">Thinking Patterns This Week</p>`;
+  c += `<div class="flex gap8 mb8"><span class="small" style="min-width:60px;color:var(--accent)">Accurate</span><div class="progress" style="flex:1"><div class="progress-fill" style="width:75%"></div></div><span class="muted xs">6x</span></div>`;
+  c += `<div class="flex gap8 mb8"><span class="small" style="min-width:60px;color:var(--rose)">Catast.</span><div class="progress" style="flex:1"><div class="progress-fill" style="width:25%;background:var(--rose)"></div></div><span class="muted xs">2x</span></div>`;
+  c += `<div class="flex gap8"><span class="small" style="min-width:60px;color:var(--amber)">Mind R.</span><div class="progress" style="flex:1"><div class="progress-fill" style="width:12%;background:var(--amber)"></div></div><span class="muted xs">1x</span></div></div>`;
+
+  c += `<div class="card mt16" style="text-align:left"><p class="bold mb4">Your Growth</p><p class="muted small">You're getting better at catching catastrophizing before it spirals. That's real growth. 🌱</p></div>`;
+
+  c += `<button class="btn btn-outline mt24" onclick="resetAll()">Reset Journey</button></div>`;
+  return c;
+}
+
+function renderToolbox() {
+  const tools = {
+    'Breathing': [['🫁','Box Breathing','3 min'],['🖐','5-Finger Breath','2 min'],['🌬','Belly Breath','5 min']],
+    'Grounding': [['👁','5-4-3-2-1 Senses','5 min'],['🧘','Body Scan','10 min']],
+    'Journaling': [['📝','Gratitude List','5 min'],['💭','Worry Dump','10 min']],
+    'Movement': [['🤸','Shake It Out','3 min'],['🚶','Walk & Talk','15 min']],
+    'Social': [['💬','Text a Friend','5 min'],['🌟','Compliment Challenge','10 min']],
+  };
+  let c = `<div class="page"><h3 class="mb4">Toolbox</h3><p class="muted small mb16">Quick tools for tough moments</p>`;
+  c += `<div class="card center mb16" style="border-color:var(--rose);background:rgba(244,63,94,0.05);cursor:pointer" onclick="go('safety')"><p class="bold rose">🆘 I Need Help Now</p><p class="xs muted">If you're in crisis, tap here</p></div>`;
+
+  for (const [cat, items] of Object.entries(tools)) {
+    c += `<p class="small accent bold mb8 mt16">${cat.toUpperCase()}</p><div class="tool-grid">`;
+    items.forEach(([icon, name, dur]) => {
+      c += `<button class="tool-item" onclick="addXP(5);alert('${name}\\n\\n+5 XP earned!\\n\\nTool steps would expand here in the full app.')"><div class="tool-icon">${icon}</div>${name}<div class="muted xs">${dur}</div></button>`;
+    });
+    c += `</div>`;
+  }
+  c += `</div>`;
+  return c;
+}
+
+function renderSafety() {
+  let c = `<div class="page center fade" style="padding-top:40px">`;
+  c += `<div style="font-size:3rem;margin-bottom:16px">💛</div><h3>We want to make sure you're okay</h3>`;
+  c += `<p class="muted" style="margin:16px 0">We noticed you've been feeling low lately. That takes courage to keep showing up.</p>`;
+  c += `<div class="card" style="border-color:var(--amber);text-align:left"><p class="bold mb8">Would any of these help?</p>`;
+  c += `<button class="btn btn-outline mb8" style="text-align:left">💬 Talk to my mentor</button>`;
+  c += `<a href="tel:14416"><button class="btn btn-outline mb8" style="text-align:left">📞 TeleMANAS Helpline: 14416</button></a>`;
+  c += `<a href="tel:9999666555"><button class="btn btn-outline mb8" style="text-align:left">📱 Vandrevala Foundation: 9999 666 555</button></a>`;
+  c += `<button class="btn btn-outline mb8" style="text-align:left" onclick="go('toolbox')">🧰 Open my toolbox</button>`;
+  c += `<button class="btn btn-outline" style="text-align:left" onclick="go('home')">✨ I'm okay, keep going</button></div>`;
+  c += `<p class="muted small mt16">Your mentor has been notified that you might need support.</p>`;
+  c += `<div class="card mt24" style="border-color:var(--rose);text-align:left"><p class="bold rose mb8">🆘 Need immediate help?</p>`;
+  c += `<p class="small muted mb8">These helplines are free and confidential:</p>`;
+  c += `<p class="small mb4"><strong class="accent">TeleMANAS:</strong> <a href="tel:14416" style="color:var(--text)">14416</a> (toll-free, 24/7)</p>`;
+  c += `<p class="small mb4"><strong class="accent">Vandrevala:</strong> <a href="tel:9999666555" style="color:var(--text)">9999 666 555</a> (24/7, WhatsApp)</p>`;
+  c += `<p class="small mb4"><strong class="accent">AASRA:</strong> <a href="tel:+912227546669" style="color:var(--text)">+91-22-2754 6669</a> (24/7)</p>`;
+  c += `<p class="small"><strong class="accent">iCALL:</strong> <a href="tel:02225521111" style="color:var(--text)">022-2552 1111</a> (Mon-Sat, 8am-10pm)</p></div>`;
+  c += `<button class="btn btn-outline mt24" onclick="go('home')">← Back to Home</button></div>`;
+  return c;
+}
+
+function renderNav() {
+  const items = [
+    { screen: 'home', icon: '🏠', label: 'Home' },
+    { screen: 'stories', icon: '📖', label: 'Stories' },
+    { screen: 'pack', icon: '👥', label: 'Pack' },
+    { screen: 'me', icon: '🌱', label: 'Me' },
+  ];
+  let c = `<nav class="nav">`;
+  items.forEach(i => {
+    c += `<button class="nav-item ${state.screen===i.screen?'active':''}" onclick="go('${i.screen}')"><span class="nav-icon">${i.icon}</span>${i.label}</button>`;
+  });
+  c += `</nav>`;
+  return c;
+}
+
+// Actions
+function toggleConcern(key) {
+  const idx = state.concerns.indexOf(key);
+  if (idx >= 0) state.concerns.splice(idx, 1);
+  else if (state.concerns.length < 3) state.concerns.push(key);
+  render();
+}
+
+function finishOnboarding() {
+  if (state.safeHome === false || state.selfHarm === true) {
+    state.screen = 'safety';
+  } else {
+    state.screen = 'home';
+  }
+  addXP(10);
+  render();
+}
+
+function checkMood(key) {
+  state.mood = key;
+  state.moodChecked = true;
+  addXP(10);
+  render();
+}
+
+function go(screen) {
+  state.screen = screen;
+  state.missionStage = 'story';
+  render();
+  window.scrollTo(0, 0);
+}
+
+function startMission(slug) {
+  state.missionSlug = slug;
+  state.screen = 'mission';
+  state.missionStage = 'story';
+  state.chosenPath = null;
+  state.reflectionText = '';
+  render();
+  window.scrollTo(0, 0);
+}
+
+function choosePath(path) {
+  state.chosenPath = path;
+  state.missionStage = 'consequence';
+  render();
+  window.scrollTo(0, 0);
+}
+
+function shareReflection() {
+  const m = MISSIONS[state.missionSlug];
+  const isA = state.chosenPath === 'A';
+  addXP(isA ? m.xp : Math.floor(m.xp * 0.5));
+  addXP(15); // reflection bonus
+  state.stories++;
+  if (isA) {
+    state.pathARate = Math.round(((state.pathARate * (state.stories-1) / 100) + 1) / state.stories * 100);
+  }
+  alert('Shared anonymously with your pack! 🌟\n+' + (isA ? m.xp + 15 : Math.floor(m.xp*0.5) + 15) + ' XP earned');
+  go('home');
+}
+
+function skipReflection() {
+  const m = MISSIONS[state.missionSlug];
+  const isA = state.chosenPath === 'A';
+  addXP(isA ? m.xp : Math.floor(m.xp * 0.5));
+  state.stories++;
+  go('home');
+}
+
+function resetAll() {
+  Object.assign(state, {
+    screen: 'onboarding', onboardStep: 1, mood: null, concerns: [],
+    safeHome: null, selfHarm: null, moodChecked: false, xp: 0,
+    streak: 1, stories: 0, pathARate: 0, missionStage: 'story',
+    missionSlug: null, chosenPath: null, reflectionText: '',
+  });
+  render();
+}
+
+// Boot
+render();
+</script>
+</body>
+</html>

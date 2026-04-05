@@ -11,10 +11,10 @@ import { prisma } from "@empathiq/database";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { workshopId: string } }
+  { params }: { params: Promise<{ workshopId: string }> }
 ) {
   try {
-    const { workshopId } = params;
+    const { workshopId } = await params;
 
     if (!workshopId) {
       return NextResponse.json(
@@ -89,10 +89,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { workshopId: string } }
+  { params }: { params: Promise<{ workshopId: string }> }
 ) {
   try {
-    const { workshopId } = params;
+    const { workshopId } = await params;
 
     if (!workshopId) {
       return NextResponse.json(

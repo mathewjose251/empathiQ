@@ -164,7 +164,8 @@ model User {
   teenProfile    TeenProfile?
   parentProfile  ParentProfile?
   mentorProfile  MentorProfile?
-  packMemberships PackMembership[]
+  packMemberships      PackMembership[]
+  workshopEnrollments  WorkshopEnrollment[]
 }
 
 model TeenProfile {
@@ -508,10 +509,9 @@ model SafetyGateResponse {
   question3Response   String
   isFlagged           Boolean        @default(false)
   flaggedAt           DateTime?
-  triageDecisionId    String?
   createdAt           DateTime       @default(now())
   intakeRecord        IntakeRecord   @relation(fields: [intakeRecordId], references: [id], onDelete: Cascade)
-  triageDecision      TriageDecision? @relation(fields: [triageDecisionId], references: [id], onDelete: SetNull)
+  triageDecision      TriageDecision?
 
   @@index([isFlagged, createdAt])
 }
@@ -571,7 +571,7 @@ model EscalationEvent {
 model TriageDecision {
   id                    String               @id @default(cuid())
   escalationEventId     String
-  safetyGateResponseId  String?
+  safetyGateResponseId  String?              @unique
   severity              EscalationSeverity
   assessmentNotes       String?
   decidedAt             DateTime             @default(now())

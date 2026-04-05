@@ -316,3 +316,70 @@ flowchart TD
 | Notification service | **Added** | Cross-role alerts, `NotificationLog`, delivery tracking |
 | Alumni conversation | **Added** | `AlumniConversation`, `/pack/alumni` route |
 | Co-participation safety gate | **Added** | Flag from `IntakeRecord` swaps family challenges for pack alternatives |
+
+---
+
+## Teen Web Experience [added]
+
+The teen experience is fully implemented as a web-first route group inside `apps/parent-portal/app/teen/`. It runs independently of the parent/admin/mentor routes and has its own layout, design system, and state layer.
+
+### Route Map
+
+| Route | File | Description |
+|---|---|---|
+| `/teen` | `page.tsx` | Home: animated greeting, live XP count-up, vibe check, pulsing story card, quick links, avatar teaser |
+| `/teen/onboarding` | `onboarding/page.tsx` | 4-step visual quiz — mood → concerns → safety gate → avatar intro |
+| `/teen/mission/[slug]` | `mission/[slug]/page.tsx` | Full mission flow: story → choice → consequence → reflect → completion overlay |
+| `/teen/stories` | `stories/page.tsx` | Browsable library of 15 mission stubs with category filter pills |
+| `/teen/pack` | `pack/page.tsx` | Anonymous peer reflection feed, mood cloud, emoji reactions |
+| `/teen/toolbox` | `toolbox/page.tsx` | 15 tools across 5 categories (Breathing, Grounding, Journaling, Movement, Social) |
+| `/teen/me` | `me/page.tsx` | Avatar display, XP progress, stats, achievements, weekly streak calendar |
+| `/teen/safety` | `safety/page.tsx` | Amber and crisis modes with verified Indian helplines |
+
+### Design System
+
+The teen section uses a fully custom CSS system (`teen.css`, ~700 lines) with CSS custom properties — **no Tailwind**. Key variables: `--teen-bg` (navy), `--teen-accent` (cyan), `--teen-purple`, `--teen-green`, `--teen-amber`, `--teen-rose`.
+
+### Engagement Layer
+
+Three-layer engagement system implemented to maximise session depth and daily return:
+
+**Layer 1 — Story Hook (first 30 seconds)**
+- XP number counts up from 0 on page load (ease-out cubic animation)
+- Streak badge with flickering fire emoji animation
+- Story card pulses with glow to draw CTA attention
+- Social proof: live pack check-in count
+- Vibe check is the first action — one tap, instant reward, unlocks matched story
+
+**Layer 2 — Reading Flow (inside mission)**
+- Narrative appears in 3 progressive text chunks; teen taps "Keep Reading →" for each
+- Stage progress dots at top (● ● ○ ○) show position across 4 stages
+- Sensory pause prompt only appears after all chunks are revealed
+- Choice cards perform attention shake animation 2.5 seconds after appearing
+- Thinking trap card pops in with scale animation 600ms after consequence text — reward moment
+- "Continue to Reflection" button fades in only after trap is visible
+
+**Layer 3 — Comeback Loop (return mechanics)**
+- Completion overlay with avatar, gradient XP number, and navigation to pack feed
+- Streak calendar on the Me page makes daily check-ins feel consequential
+- Pack feed shows peer reflections with "12 teens checked in today" social pull
+- Avatar evolves visibly at XP thresholds — identity investment across sessions
+- "Next story" teaser and unlocked stories tally drive return
+
+### Avatar Evolution
+
+| Stage | Label | XP Threshold |
+|---|---|---|
+| 🌱 | SEEDLING | 0 |
+| 🌿 | SPROUT | 500 |
+| 🌳 | SAPLING | 1 000 |
+| 🌲 | TREE | 2 500 |
+| ✨ | RADIANT | 5 000 |
+
+### Safety System
+
+Safety gate in onboarding asks two questions (home safety + self-harm ideation). If flagged, teen routes to `/teen/safety` instead of home. Safety page has two modes: **Amber** (gentle check-in) and **Crisis** (immediate helplines). Helplines are India-specific and verified real numbers:
+- TeleMANAS 14416 (toll-free, 24/7, Government of India)
+- Vandrevala Foundation 9999 666 555 (24/7 WhatsApp)
+- AASRA +91-22-2754 6669 (24/7)
+- iCALL 022-2552 1111 (Mon–Sat, 8am–10pm IST)

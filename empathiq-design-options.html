@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmpathiQ — Design Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #111;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    padding: 48px 24px 32px;
+  }
+  .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+  .header p { color: #888; margin-top: 8px; font-size: 0.95rem; }
+
+  /* ===== SECTION TABS ===== */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 24px 32px;
+  }
+  .tab-btn {
+    padding: 10px 24px;
+    border-radius: 100px;
+    border: 2px solid #333;
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
+  }
+
+  /* ===== PHONES GRID ===== */
+  .phones-grid {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 24px 48px;
+    flex-wrap: wrap;
+  }
+
+  .theme-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 280px;
+  }
+  .theme-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  .theme-sub {
+    font-size: 0.8rem;
+    color: #888;
+    text-align: center;
+    margin-top: -8px;
+  }
+  .select-btn {
+    padding: 10px 28px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .select-btn:hover { transform: scale(1.03); }
+
+  /* ===== PHONE FRAME ===== */
+  .phone {
+    width: 260px;
+    height: 520px;
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: 3px solid rgba(255,255,255,0.08);
+  }
+  .phone:hover { transform: scale(1.02); }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== THEME 1: MIDNIGHT (current) ===== */
+  .midnight { background: #0f172a; }
+  .midnight .status-bar { background: #0f172a; padding: 12px 16px 4px; display: flex; justify-content: space-between; font-size: 0.65rem; color: #06b6d4; font-weight: 600; }
+  .midnight .header-bar { padding: 8px 16px 12px; }
+  .midnight .header-bar h2 { font-size: 1rem; font-weight: 700; color: #fff; }
+  .midnight .header-bar p { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
+  .midnight .streak-row { display: flex; gap: 8px; padding: 0 16px 12px; }
+  .midnight .badge { padding: 5px 10px; border-radius: 100px; font-size: 0.65rem; font-weight: 700; }
+  .midnight .xp-badge { background: rgba(6,182,212,0.15); color: #06b6d4; border: 1px solid rgba(6,182,212,0.3); }
+  .midnight .streak-badge { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+  .midnight .story-card { margin: 0 16px 12px; border-radius: 20px; padding: 16px; background: linear-gradient(135deg, #1e293b, #0f1d2e); border: 1px solid rgba(6,182,212,0.2); }
+  .midnight .story-tag { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; color: #06b6d4; font-weight: 700; margin-bottom: 6px; }
+  .midnight .story-title { font-size: 0.9rem; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; line-height: 1.3; }
+  .midnight .story-desc { font-size: 0.7rem; color: #64748b; line-height: 1.5; margin-bottom: 12px; }
+  .midnight .story-btn { background: #06b6d4; color: #0f172a; border: none; border-radius: 12px; padding: 8px 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; width: 100%; }
+  .midnight .mood-label { font-size: 0.7rem; color: #64748b; padding: 0 16px 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .midnight .mood-row { display: flex; gap: 8px; padding: 0 16px 12px; }
+  .midnight .mood-item { flex: 1; background: #1e293b; border-radius: 12px; padding: 8px 4px; text-align: center; border: 1px solid #2d3748; }
+  .midnight .mood-emoji { font-size: 1.2rem; display: block; }
+  .midnight .mood-text { font-size: 0.55rem; color: #64748b; margin-top: 2px; }
+  .midnight .bottom-nav { display: flex; background: #1e293b; border-top: 1px solid #2d3748; padding: 8px 0; margin-top: auto; }
+  .midnight .nav-item { flex: 1; text-align: center; padding: 4px; font-size: 0.55rem; color: #64748b; }
+  .midnight .nav-item.active { color: #06b6d4; }
+  .midnight .nav-icon { font-size: 1.1rem; display: block; margin-bottom: 2px; }
+
+  /* ===== THEME 2: DUSK GARDEN ===== */
+  .dusk { background: #14061f; }
+  .dusk .status-bar { background: #14061f; padding: 12px 16px 4px; display: flex; justify-content: space-between; font-size: 0.65rem; color: #f59e0b; font-weight: 600; }
+  .dusk .header-bar { padding: 8px 16px 12px; }
+  .dusk .header-bar h2 { font-size: 1rem; font-weight: 700; color: #fff; }
+  .dusk .header-bar p { font-size: 0.7rem; color: #7c6b91; margin-top: 2px; }
+  .dusk .streak-row { display: flex; gap: 8px; padding: 0 16px 12px; }
+  .dusk .badge { padding: 5px 10px; border-radius: 100px; font-size: 0.65rem; font-weight: 700; }
+  .dusk .xp-badge { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .dusk .streak-badge { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+  .dusk .story-card { margin: 0 16px 12px; border-radius: 20px; padding: 16px; background: linear-gradient(135deg, #261040, #1a0833); border: 1px solid rgba(245,158,11,0.25); }
+  .dusk .story-tag { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; color: #f59e0b; font-weight: 700; margin-bottom: 6px; }
+  .dusk .story-title { font-size: 0.9rem; font-weight: 700; color: #fff5e4; margin-bottom: 8px; line-height: 1.3; }
+  .dusk .story-desc { font-size: 0.7rem; color: #7c6b91; line-height: 1.5; margin-bottom: 12px; }
+  .dusk .story-btn { background: linear-gradient(135deg, #f59e0b, #f97316); color: #14061f; border: none; border-radius: 12px; padding: 8px 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; width: 100%; }
+  .dusk .mood-label { font-size: 0.7rem; color: #7c6b91; padding: 0 16px 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .dusk .mood-row { display: flex; gap: 8px; padding: 0 16px 12px; }
+  .dusk .mood-item { flex: 1; background: #261040; border-radius: 12px; padding: 8px 4px; text-align: center; border: 1px solid #3d1a5a; }
+  .dusk .mood-emoji { font-size: 1.2rem; display: block; }
+  .dusk .mood-text { font-size: 0.55rem; color: #7c6b91; margin-top: 2px; }
+  .dusk .bottom-nav { display: flex; background: #1c0930; border-top: 1px solid #3d1a5a; padding: 8px 0; margin-top: auto; }
+  .dusk .nav-item { flex: 1; text-align: center; padding: 4px; font-size: 0.55rem; color: #7c6b91; }
+  .dusk .nav-item.active { color: #f59e0b; }
+  .dusk .nav-icon { font-size: 1.1rem; display: block; margin-bottom: 2px; }
+
+  /* ===== THEME 3: BLOOM (warm light) ===== */
+  .bloom { background: #fff9f5; }
+  .bloom .status-bar { background: #fff9f5; padding: 12px 16px 4px; display: flex; justify-content: space-between; font-size: 0.65rem; color: #7c3aed; font-weight: 600; }
+  .bloom .header-bar { padding: 8px 16px 12px; }
+  .bloom .header-bar h2 { font-size: 1rem; font-weight: 700; color: #1e0a3c; }
+  .bloom .header-bar p { font-size: 0.7rem; color: #9d8ba8; margin-top: 2px; }
+  .bloom .streak-row { display: flex; gap: 8px; padding: 0 16px 12px; }
+  .bloom .badge { padding: 5px 10px; border-radius: 100px; font-size: 0.65rem; font-weight: 700; }
+  .bloom .xp-badge { background: rgba(124,58,237,0.1); color: #7c3aed; border: 1px solid rgba(124,58,237,0.3); }
+  .bloom .streak-badge { background: rgba(249,115,22,0.1); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+  .bloom .story-card { margin: 0 16px 12px; border-radius: 20px; padding: 16px; background: linear-gradient(135deg, #ede9fe, #fce7f3); border: 1px solid rgba(124,58,237,0.15); }
+  .bloom .story-tag { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; color: #7c3aed; font-weight: 700; margin-bottom: 6px; }
+  .bloom .story-title { font-size: 0.9rem; font-weight: 700; color: #1e0a3c; margin-bottom: 8px; line-height: 1.3; }
+  .bloom .story-desc { font-size: 0.7rem; color: #9d8ba8; line-height: 1.5; margin-bottom: 12px; }
+  .bloom .story-btn { background: linear-gradient(135deg, #7c3aed, #ec4899); color: #fff; border: none; border-radius: 12px; padding: 8px 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; width: 100%; }
+  .bloom .mood-label { font-size: 0.7rem; color: #9d8ba8; padding: 0 16px 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .bloom .mood-row { display: flex; gap: 8px; padding: 0 16px 12px; }
+  .bloom .mood-item { flex: 1; background: #fff; border-radius: 12px; padding: 8px 4px; text-align: center; border: 1px solid #ede9fe; box-shadow: 0 2px 8px rgba(124,58,237,0.08); }
+  .bloom .mood-emoji { font-size: 1.2rem; display: block; }
+  .bloom .mood-text { font-size: 0.55rem; color: #9d8ba8; margin-top: 2px; }
+  .bloom .bottom-nav { display: flex; background: #fff; border-top: 1px solid #ede9fe; padding: 8px 0; margin-top: auto; box-shadow: 0 -4px 20px rgba(124,58,237,0.08); }
+  .bloom .nav-item { flex: 1; text-align: center; padding: 4px; font-size: 0.55rem; color: #c4b5d4; }
+  .bloom .nav-item.active { color: #7c3aed; }
+  .bloom .nav-icon { font-size: 1.1rem; display: block; margin-bottom: 2px; }
+
+  /* ===== PALETTE SWATCHES ===== */
+  .swatches { display: flex; gap: 6px; margin-top: 4px; justify-content: center; }
+  .swatch { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); }
+
+  /* ===== ENGAGEMENT SECTION ===== */
+  .engagement-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 64px;
+    display: none;
+  }
+  .engagement-section.active { display: block; }
+  .section-heading {
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .section-sub {
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 40px;
+  }
+
+  .eng-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+  .eng-card {
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid #222;
+    background: #181818;
+  }
+  .eng-icon { font-size: 2rem; margin-bottom: 12px; }
+  .eng-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .eng-desc { font-size: 0.85rem; color: #888; line-height: 1.6; }
+  .eng-features { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .eng-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #bbb;
+  }
+  .eng-feature::before { content: "→"; color: #06b6d4; flex-shrink: 0; }
+
+  .layer-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .layer-1 { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+  .layer-2 { background: rgba(6,182,212,0.15); color: #06b6d4; border: 1px solid rgba(6,182,212,0.3); }
+  .layer-3 { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+
+  .demo-strip {
+    background: #181818;
+    border: 1px solid #222;
+    border-radius: 20px;
+    padding: 24px;
+    margin-top: 32px;
+  }
+  .demo-strip h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: #fff; }
+  .flow-steps {
+    display: flex;
+    gap: 0;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .flow-step {
+    background: #222;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: #ddd;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .flow-arrow { color: #444; font-size: 1rem; flex-shrink: 0; }
+  .flow-step.highlight {
+    background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(139,92,246,0.2));
+    border: 1px solid rgba(6,182,212,0.3);
+    color: #06b6d4;
+  }
+
+  .palette-section { display: none; }
+  .palette-section.active { display: block; }
+
+  /* ===== ANIMATION DEMO ===== */
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(6,182,212,0.4)} 50%{box-shadow:0 0 0 12px rgba(6,182,212,0)} }
+  @keyframes shimmer { 0%{opacity:0.5} 50%{opacity:1} 100%{opacity:0.5} }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+  .floating { animation: float 3s ease-in-out infinite; }
+  .pulsing { animation: pulse 2s ease-in-out infinite; }
+  .shimmering { animation: shimmer 2s ease-in-out infinite; }
+
+  .eng-demo-phone {
+    width: 200px;
+    height: 400px;
+    border-radius: 32px;
+    background: #0f172a;
+    border: 2px solid rgba(6,182,212,0.3);
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: #1e293b;
+    border-radius: 2px;
+    margin: 8px 16px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+    width: 45%;
+    transition: width 0.5s ease;
+  }
+
+  .selected-tag {
+    display: inline-block;
+    background: #06b6d4;
+    color: #0f172a;
+    border-radius: 100px;
+    padding: 3px 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>EmpathiQ — Design Lab</h1>
+  <p>Compare color themes & explore the engagement plan</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('palette')">🎨 Color Themes</button>
+  <button class="tab-btn" onclick="showTab('engagement')">⚡ Engagement Plan</button>
+</div>
+
+<!-- ===== PALETTE TAB ===== -->
+<div class="palette-section active" id="tab-palette">
+  <div class="phones-grid">
+
+    <!-- MIDNIGHT (current) -->
+    <div class="theme-column">
+      <div class="theme-label">1. Midnight <span class="selected-tag">Current</span></div>
+      <div class="theme-sub">Dark navy · Cyan · Purple</div>
+      <div class="swatches">
+        <div class="swatch" style="background:#0f172a;border-color:#444"></div>
+        <div class="swatch" style="background:#06b6d4"></div>
+        <div class="swatch" style="background:#8b5cf6"></div>
+        <div class="swatch" style="background:#fb923c"></div>
+      </div>
+
+      <div class="phone floating">
+        <div class="phone-screen midnight">
+          <div class="status-bar"><span>9:41</span><span>✦ 100</span></div>
+          <div class="header-bar">
+            <h2>Hey Aarav 👋</h2>
+            <p>What's your vibe today?</p>
+          </div>
+          <div class="streak-row">
+            <span class="badge xp-badge">⚡ 340 XP</span>
+            <span class="badge streak-badge">🔥 5 days</span>
+          </div>
+          <div class="story-card pulsing">
+            <div class="story-tag">📖 Today's Story</div>
+            <div class="story-title">The Night Before Finals</div>
+            <div class="story-desc">Exam in 9 hours. Everyone seems ready. Your stomach tightens...</div>
+            <button class="story-btn">Start Mission →</button>
+          </div>
+          <div class="mood-label">How are you feeling?</div>
+          <div class="mood-row">
+            <div class="mood-item"><span class="mood-emoji">😌</span><span class="mood-text">Calm</span></div>
+            <div class="mood-item"><span class="mood-emoji">😤</span><span class="mood-text">Frustrated</span></div>
+            <div class="mood-item"><span class="mood-emoji">😰</span><span class="mood-text">Anxious</span></div>
+            <div class="mood-item"><span class="mood-emoji">😔</span><span class="mood-text">Low</span></div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active"><span class="nav-icon">🏠</span>Home</div>
+            <div class="nav-item"><span class="nav-icon">📚</span>Stories</div>
+            <div class="nav-item"><span class="nav-icon">🏕️</span>Pack</div>
+            <div class="nav-item"><span class="nav-icon">🌱</span>Me</div>
+          </div>
+        </div>
+      </div>
+
+      <select-btn-wrapper>
+        <button class="select-btn" style="background:#06b6d4;color:#0f172a;" onclick="selectTheme('midnight')">Select Midnight</button>
+      </select-btn-wrapper>
+      <p style="font-size:0.75rem;color:#888;text-align:center">Private, calm, like their fave apps<br>Feels safe to open at night ✓</p>
+    </div>
+
+    <!-- DUSK GARDEN -->
+    <div class="theme-column">
+      <div class="theme-label">2. Dusk Garden ✨</div>
+      <div class="theme-sub">Deep purple · Amber · Emerald</div>
+      <div class="swatches">
+        <div class="swatch" style="background:#14061f;border-color:#444"></div>
+        <div class="swatch" style="background:#f59e0b"></div>
+        <div class="swatch" style="background:#34d399"></div>
+        <div class="swatch" style="background:#f97316"></div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen dusk">
+          <div class="status-bar"><span>9:41</span><span>✦ 100</span></div>
+          <div class="header-bar">
+            <h2>Hey Aarav 👋</h2>
+            <p>What's your vibe today?</p>
+          </div>
+          <div class="streak-row">
+            <span class="badge xp-badge">⚡ 340 XP</span>
+            <span class="badge streak-badge">🌿 5 days</span>
+          </div>
+          <div class="story-card">
+            <div class="story-tag">📖 Today's Story</div>
+            <div class="story-title">The Night Before Finals</div>
+            <div class="story-desc">Exam in 9 hours. Everyone seems ready. Your stomach tightens...</div>
+            <button class="story-btn">Start Mission →</button>
+          </div>
+          <div class="mood-label">How are you feeling?</div>
+          <div class="mood-row">
+            <div class="mood-item"><span class="mood-emoji">😌</span><span class="mood-text">Calm</span></div>
+            <div class="mood-item"><span class="mood-emoji">😤</span><span class="mood-text">Frustrated</span></div>
+            <div class="mood-item"><span class="mood-emoji">😰</span><span class="mood-text">Anxious</span></div>
+            <div class="mood-item"><span class="mood-emoji">😔</span><span class="mood-text">Low</span></div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active"><span class="nav-icon">🏠</span>Home</div>
+            <div class="nav-item"><span class="nav-icon">📚</span>Stories</div>
+            <div class="nav-item"><span class="nav-icon">🏕️</span>Pack</div>
+            <div class="nav-item"><span class="nav-icon">🌱</span>Me</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="select-btn" style="background:linear-gradient(135deg,#f59e0b,#f97316);color:#14061f;" onclick="selectTheme('dusk')">Select Dusk Garden</button>
+      <p style="font-size:0.75rem;color:#888;text-align:center">Warm but mysterious<br>Hopeful energy, still private ✓</p>
+    </div>
+
+    <!-- BLOOM -->
+    <div class="theme-column">
+      <div class="theme-label">3. Bloom</div>
+      <div class="theme-sub">Warm cream · Purple · Rose</div>
+      <div class="swatches">
+        <div class="swatch" style="background:#fff9f5;border-color:#888"></div>
+        <div class="swatch" style="background:#7c3aed"></div>
+        <div class="swatch" style="background:#ec4899"></div>
+        <div class="swatch" style="background:#f97316"></div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen bloom">
+          <div class="status-bar"><span style="color:#7c3aed">9:41</span><span style="color:#7c3aed">✦ 100</span></div>
+          <div class="header-bar">
+            <h2>Hey Aarav 👋</h2>
+            <p>What's your vibe today?</p>
+          </div>
+          <div class="streak-row">
+            <span class="badge xp-badge">⚡ 340 XP</span>
+            <span class="badge streak-badge">🔥 5 days</span>
+          </div>
+          <div class="story-card">
+            <div class="story-tag">📖 Today's Story</div>
+            <div class="story-title">The Night Before Finals</div>
+            <div class="story-desc">Exam in 9 hours. Everyone seems ready. Your stomach tightens...</div>
+            <button class="story-btn">Start Mission →</button>
+          </div>
+          <div class="mood-label">How are you feeling?</div>
+          <div class="mood-row">
+            <div class="mood-item"><span class="mood-emoji">😌</span><span class="mood-text">Calm</span></div>
+            <div class="mood-item"><span class="mood-emoji">😤</span><span class="mood-text">Frustrated</span></div>
+            <div class="mood-item"><span class="mood-emoji">😰</span><span class="mood-text">Anxious</span></div>
+            <div class="mood-item"><span class="mood-emoji">😔</span><span class="mood-text">Low</span></div>
+          </div>
+          <div class="bottom-nav">
+            <div class="nav-item active"><span class="nav-icon">🏠</span>Home</div>
+            <div class="nav-item"><span class="nav-icon">📚</span>Stories</div>
+            <div class="nav-item"><span class="nav-icon">🏕️</span>Pack</div>
+            <div class="nav-item"><span class="nav-icon">🌱</span>Me</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="select-btn" style="background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;" onclick="selectTheme('bloom')">Select Bloom</button>
+      <p style="font-size:0.75rem;color:#888;text-align:center">Light, open, growth-forward<br>Less "mental health app" feel ✓</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding-bottom:48px;">
+    <p style="color:#888;font-size:0.85rem">Click a theme to see what it means for the full build →</p>
+    <div id="selected-msg" style="margin-top:16px;font-size:1rem;font-weight:700;color:#06b6d4;min-height:24px;"></div>
+  </div>
+</div>
+
+<!-- ===== ENGAGEMENT TAB ===== -->
+<div class="engagement-section" id="tab-engagement">
+  <div class="section-heading">3-Layer Engagement Engine</div>
+  <div class="section-sub">What keeps a teen opening EmpathiQ every single day</div>
+
+  <div class="eng-grid">
+
+    <!-- LAYER 1: HOOK -->
+    <div class="eng-card">
+      <div class="layer-tag layer-1">Layer 1 · First 30 Seconds</div>
+      <div class="eng-icon">🎣</div>
+      <div class="eng-title">The Story Hook</div>
+      <div class="eng-desc">Make the very first screen irresistible. A teen taps in and within 30 seconds feels seen, curious, and compelled to keep going.</div>
+      <div class="eng-features">
+        <div class="eng-feature">Animated avatar greeting — "Hey Aarav! Your seedling missed you 🌱"</div>
+        <div class="eng-feature">Today's story card pulses with a subtle glow to draw the eye</div>
+        <div class="eng-feature">Streak fire animation plays on open (day 1+)</div>
+        <div class="eng-feature">XP number counts up visually from 0 to their total</div>
+        <div class="eng-feature">Social proof: "12 teens in your pack checked in today"</div>
+        <div class="eng-feature">Vibe check is the first tap — low friction, instant reward</div>
+      </div>
+    </div>
+
+    <!-- LAYER 2: READING FLOW -->
+    <div class="eng-card">
+      <div class="layer-tag layer-2">Layer 2 · Inside the Story</div>
+      <div class="eng-icon">📖</div>
+      <div class="eng-title">Reading Flow Mechanics</div>
+      <div class="eng-desc">Teens stop reading when it feels like homework. These mechanics make each sentence feel like part of a game they're playing.</div>
+      <div class="eng-features">
+        <div class="eng-feature">Story text appears in 3 progressive "reveal" chunks — tap to continue</div>
+        <div class="eng-feature">Progress dots at top (● ● ○ ○) show exactly where they are</div>
+        <div class="eng-feature">Sensory prompt is a styled card that stands out from narrative</div>
+        <div class="eng-feature">Choice cards have a subtle shake animation 2 seconds after appearing</div>
+        <div class="eng-feature">Timer badge ("5 min mission") sets expectation — feels doable</div>
+        <div class="eng-feature">After choosing: consequence text fades in line by line — not a wall of text</div>
+        <div class="eng-feature">Thinking trap is a "reveal" with a pop animation — reward moment</div>
+      </div>
+    </div>
+
+    <!-- LAYER 3: COMEBACK LOOP -->
+    <div class="eng-card">
+      <div class="layer-tag layer-3">Layer 3 · Come Back Tomorrow</div>
+      <div class="eng-icon">🔄</div>
+      <div class="eng-title">The Comeback Loop</div>
+      <div class="eng-desc">The hardest problem in teen apps: day 2. These mechanics make returning feel rewarding, social, and tied to something evolving.</div>
+      <div class="eng-features">
+        <div class="eng-feature">Completion celebration: XP burst animation + avatar "grows" with light particles</div>
+        <div class="eng-feature">Streak calendar locks in visually — missing a day feels real</div>
+        <div class="eng-feature">Pack feed updates: "Quiet Orbit posted a new reflection" — FOMO pull</div>
+        <div class="eng-feature">Daily vibe check reminds them their mood history is building</div>
+        <div class="eng-feature">"Next story unlocks tomorrow" teaser on completion screen</div>
+        <div class="eng-feature">7-day streak badge is visually distinct — aspirational milestone</div>
+        <div class="eng-feature">Avatar evolution is slow but visible — identity investment</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER FLOW -->
+  <div class="demo-strip">
+    <h3>🗺️ Ideal First Session Flow (under 6 minutes)</h3>
+    <div class="flow-steps">
+      <div class="flow-step highlight">Open app<br><small>Streak fires ✓</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">Tap mood<br><small>1 tap, instant ✓</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Story reveals<br><small>3 chunks</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Sensory pause<br><small>5 sec</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">Make choice<br><small>Choice shakes ✓</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">See consequence<br><small>Fades in</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">Trap revealed<br><small>Pop! ✓</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Write reflection<br><small>Optional</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">XP burst + avatar grows<br><small>Celebration ✓</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">See pack feed<br><small>Social pull</small></div>
+    </div>
+  </div>
+
+  <!-- WHAT WE BUILD NEXT -->
+  <div class="demo-strip" style="margin-top:20px;">
+    <h3>🔨 What We Build Next</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px;">
+      <div>
+        <p style="font-size:0.8rem;color:#06b6d4;font-weight:700;margin-bottom:8px;">New Components</p>
+        <div style="font-size:0.8rem;color:#aaa;line-height:2;">
+          ✓ XP count-up animation on home load<br>
+          ✓ Avatar greeting with particle effect<br>
+          ✓ Story progressive text reveal<br>
+          ✓ Choice card shake animation<br>
+          ✓ Thinking trap pop reveal<br>
+          ✓ Completion XP burst + confetti<br>
+          ✓ Streak fire animation
+        </div>
+      </div>
+      <div>
+        <p style="font-size:0.8rem;color:#a78bfa;font-weight:700;margin-bottom:8px;">CSS/Animation Updates</p>
+        <div style="font-size:0.8rem;color:#aaa;line-height:2;">
+          ✓ Progress dots component (.story-dots)<br>
+          ✓ Keyframes: xpBurst, choiceShake, trapReveal<br>
+          ✓ Particle system for avatar<br>
+          ✓ Smooth page transitions<br>
+          ✓ Haptic-feel button feedback<br>
+          ✓ Streak calendar cells<br>
+          ✓ Count-up number animation
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+      b.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    document.getElementById('tab-palette').classList.remove('active');
+    document.getElementById('tab-engagement').classList.remove('active');
+
+    if (tab === 'palette') {
+      document.getElementById('tab-palette').classList.add('active');
+    } else {
+      document.getElementById('tab-engagement').classList.add('active');
+    }
+  }
+
+  function selectTheme(theme) {
+    const names = {
+      midnight: 'Midnight (current) — dark navy + cyan',
+      dusk: 'Dusk Garden — deep purple + amber',
+      bloom: 'Bloom — warm cream + purple + rose'
+    };
+    const msg = document.getElementById('selected-msg');
+    msg.textContent = `✓ You selected: ${names[theme]} — let me know and I'll implement it!`;
+    msg.style.color = theme === 'midnight' ? '#06b6d4' : theme === 'dusk' ? '#f59e0b' : '#7c3aed';
+  }
+
+  // Animate XP count-up in phones
+  setTimeout(() => {
+    const badges = document.querySelectorAll('.xp-badge');
+    let count = 0;
+    const interval = setInterval(() => {
+      count += 17;
+      if (count >= 340) { count = 340; clearInterval(interval); }
+      badges.forEach(b => { b.textContent = `⚡ ${count} XP`; });
+    }, 20);
+  }, 800);
+</script>
+</body>
+</html>

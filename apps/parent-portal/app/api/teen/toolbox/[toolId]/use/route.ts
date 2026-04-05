@@ -25,12 +25,14 @@ import { getAuthContext } from "../../../../../_lib/teenAuth";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { toolId: string } }
+  { params }: { params: Promise<{ toolId: string }> }
 ) {
   try {
     // Validate auth
     const authHeader = request.headers.get("Authorization");
     const { teenId } = getAuthContext(authHeader);
+
+    const { toolId } = await params;
 
     // Parse request body
     const body = await request.json().catch(() => ({}));
@@ -56,7 +58,7 @@ export async function POST(
     const usedAt = new Date();
     console.log("[Tool Usage Log]", {
       teenId,
-      toolId: params.toolId,
+      toolId,
       helpfulnessRating: helpfulnessRating || null,
       note: note || null,
       usedAt: usedAt.toISOString(),
@@ -66,7 +68,7 @@ export async function POST(
       status: "success",
       data: {
         logged: true,
-        toolId: params.toolId,
+        toolId,
         usedAt: usedAt.toISOString(),
       },
     });

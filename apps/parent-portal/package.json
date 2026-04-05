@@ -3,10 +3,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build",
+    "build": "pnpm --dir ../.. --filter @empathiq/database prisma:generate && next build",
     "start": "next start -p 3000"
   },
   "dependencies": {
+    "@empathiq/database": "workspace:*",
     "@empathiq/shared": "workspace:*",
     "next": "^15.3.1",
     "react": "^19.0.0",

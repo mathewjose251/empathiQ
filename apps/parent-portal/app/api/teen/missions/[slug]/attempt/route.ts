@@ -17,14 +17,14 @@ import { getAuthContext } from "../../../../../_lib/teenAuth";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     // Validate auth
     const authHeader = request.headers.get("Authorization");
     const { teenId } = getAuthContext(authHeader);
 
-    const { slug } = params;
+    const { slug } = await params;
 
     if (!slug) {
       return NextResponse.json(
@@ -56,7 +56,6 @@ export async function POST(
       },
       select: {
         id: true,
-        createdAt: true,
         startedAt: true,
       },
     });

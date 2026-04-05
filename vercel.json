@@ -1,6 +1,0 @@
-{
-  "buildCommand": "npx -y pnpm@10.8.1 install && npx -y pnpm@10.8.1 run build",
-  "installCommand": "npx -y pnpm@10.8.1 install",
-  "outputDirectory": "apps/parent-portal/.next",
-  "nodeVersion": "20.x"
-}

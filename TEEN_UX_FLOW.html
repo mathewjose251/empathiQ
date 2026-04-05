@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmpathiQ Teen UX Flow — Complete Experience Design</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --accent: #06b6d4;
+    --accent2: #8b5cf6;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #334155;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 60px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  header h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  header p { color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+  .version-badge {
+    display: inline-block;
+    background: var(--accent2);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin-top: 16px;
+  }
+
+  /* Navigation */
+  .flow-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 48px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 16px 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+  .flow-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .flow-nav a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 64px;
+    scroll-margin-top: 80px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .section-number {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .section h2 { font-size: 1.6rem; }
+  .section-desc { color: var(--muted); margin-bottom: 32px; font-size: 1rem; }
+
+  /* Phone Mockups */
+  .phone-row {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+  .phone {
+    width: 320px;
+    background: var(--card);
+    border-radius: 32px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .phone-status {
+    height: 44px;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .phone-notch {
+    width: 120px;
+    height: 24px;
+    background: #000;
+    border-radius: 0 0 16px 16px;
+    margin: 0 auto;
+  }
+  .phone-content {
+    padding: 20px 16px;
+    min-height: 520px;
+    position: relative;
+  }
+  .phone-label {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    padding: 12px 0 16px;
+    font-weight: 600;
+  }
+  .phone-bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    background: #0f172a;
+  }
+  .nav-item {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
+
+  /* UI Elements */
+  .mock-btn {
+    display: block;
+    padding: 14px;
+    border-radius: 16px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    cursor: default;
+  }
+  .btn-accent { background: var(--accent); color: #000; }
+  .btn-purple { background: var(--accent2); color: #fff; }
+  .btn-outline { border: 2px solid var(--border); color: var(--text); background: transparent; }
+  .btn-green { background: var(--green); color: #000; }
+  .btn-rose { background: var(--rose); color: #fff; }
+
+  .mood-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .mood-item {
+    text-align: center;
+    padding: 12px 4px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    font-size: 1.8rem;
+    cursor: default;
+    transition: all 0.2s;
+  }
+  .mood-item.selected {
+    border-color: var(--accent);
+    background: rgba(6, 182, 212, 0.15);
+    transform: scale(1.05);
+  }
+  .mood-label { font-size: 0.65rem; color: var(--muted); display: block; margin-top: 4px; }
+
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .card-glow-cyan { border-color: var(--accent); box-shadow: 0 0 20px rgba(6,182,212,0.15); }
+  .card-glow-purple { border-color: var(--accent2); box-shadow: 0 0 20px rgba(139,92,246,0.15); }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-around;
+    margin: 16px 0;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-value { font-size: 1.8rem; font-weight: 700; }
+  .stat-label { font-size: 0.7rem; color: var(--muted); }
+  .stat-cyan .stat-value { color: var(--accent); }
+  .stat-purple .stat-value { color: var(--accent2); }
+  .stat-green .stat-value { color: var(--green); }
+  .stat-amber .stat-value { color: var(--amber); }
+
+  .avatar-display {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    border: 3px solid var(--accent);
+    box-shadow: 0 0 30px rgba(6,182,212,0.3);
+  }
+
+  .progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+  .fill-cyan { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .fill-green { background: var(--green); }
+  .fill-amber { background: var(--amber); }
+
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid var(--amber);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  .xp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid var(--accent2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .pack-post {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .pack-alias {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .pack-text { font-size: 0.85rem; color: var(--text); margin-bottom: 8px; }
+  .pack-reactions {
+    display: flex;
+    gap: 8px;
+  }
+  .reaction {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: default;
+  }
+
+  .story-card {
+    background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(139,92,246,0.1));
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 12px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .story-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .story-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .story-theme {
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .story-desc { font-size: 0.85rem; color: var(--muted); }
+  .story-meta { display: flex; gap: 16px; margin-top: 8px; font-size: 0.75rem; color: var(--muted); }
+
+  /* Annotation bubbles */
+  .annotation {
+    background: rgba(139,92,246,0.1);
+    border-left: 3px solid var(--accent2);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.9rem;
+  }
+  .annotation strong { color: var(--accent2); }
+
+  /* Specs table */
+  .spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+  }
+  .spec-table th, .spec-table td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+    font-size: 0.85rem;
+  }
+  .spec-table th {
+    background: rgba(6,182,212,0.1);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Flow arrow */
+  .flow-arrow {
+    text-align: center;
+    color: var(--accent);
+    font-size: 2rem;
+    padding: 8px 0;
+  }
+
+  .emoji-large { font-size: 2.5rem; }
+  .text-center { text-align: center; }
+  .text-muted { color: var(--muted); }
+  .text-small { font-size: 0.8rem; }
+  .text-accent { color: var(--accent); }
+  .text-purple { color: var(--accent2); }
+  .text-amber { color: var(--amber); }
+  .text-green { color: var(--green); }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mt-16 { margin-top: 16px; }
+
+  .tool-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .tool-item {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.8rem;
+  }
+  .tool-icon { font-size: 1.5rem; margin-bottom: 4px; }
+
+  .level-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .level-label {
+    font-size: 0.75rem;
+    color: var(--accent2);
+    min-width: 40px;
+  }
+
+  .sensory-box {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid var(--amber);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 12px 0;
+    font-size: 0.85rem;
+    color: var(--amber);
+    font-style: italic;
+  }
+
+  .input-mock {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 8px 0;
+    min-height: 60px;
+  }
+
+  .social-proof {
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    background: rgba(6,182,212,0.08);
+    border-radius: 12px;
+    margin: 12px 0;
+  }
+
+  @media (max-width: 768px) {
+    .phone-row { flex-direction: column; align-items: center; }
+    header h1 { font-size: 1.8rem; }
+    .flow-nav { gap: 4px; }
+    .flow-nav a { font-size: 0.75rem; padding: 4px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>EmpathiQ Teen Experience</h1>
+  <p>Complete UX flow for the teen-facing emotional wellbeing app. Web-first, mobile-ready. Designed for engagement in the first 30 seconds.</p>
+  <div class="version-badge">UX Design v2.0 — April 2026</div>
+</header>
+
+<nav class="flow-nav">
+  <a href="#onboarding">1. Onboarding</a>
+  <a href="#home">2. Home / Vibe Check</a>
+  <a href="#mission">3. Mission Flow</a>
+  <a href="#gamification">4. Gamification</a>
+  <a href="#pack">5. Pack Feed</a>
+  <a href="#toolbox">6. Toolbox</a>
+  <a href="#journey">7. Journey Map</a>
+  <a href="#safety">8. Safety Layer</a>
+  <a href="#navigation">9. Navigation</a>
+  <a href="#specs">10. Tech Specs</a>
+</nav>
+
+<!-- ===== 1. ONBOARDING ===== -->
+<section class="section" id="onboarding">
+  <div class="section-header">
+    <div class="section-number">1</div>
+    <h2>First Launch — The 60-Second Onboarding</h2>
+  </div>
+  <p class="section-desc">No forms. No walls of text. A visual quiz that feels like a game. The teen picks vibes, not answers. By the end, they've completed intake, created their avatar, and are ready for their first mission — all in under 60 seconds.</p>
+
+  <div class="phone-row">
+    <!-- Screen 1: Welcome -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content text-center">
+        <div style="padding-top: 60px;">
+          <div class="emoji-large">🌊</div>
+          <h3 style="font-size: 1.6rem; margin: 16px 0 8px;">Welcome to EmpathiQ</h3>
+          <p class="text-muted" style="margin-bottom: 32px;">Your space. Your stories. Your growth.</p>
+          <p class="text-muted text-small" style="margin-bottom: 40px;">Takes 60 seconds. No wrong answers.</p>
+          <div class="mock-btn btn-accent">Let's Go</div>
+          <p class="text-muted text-small" style="margin-top: 16px;">Already have an account? <span class="text-accent">Sign in</span></p>
+        </div>
+      </div>
+      <div class="phone-label">Screen 1: Welcome Splash</div>
+    </div>
+
+    <!-- Screen 2: Age/Vibe Quiz Card 1 -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <div class="progress-bar"><div class="progress-fill fill-cyan" style="width: 25%;"></div></div>
+        <p class="text-center text-muted text-small mb-16">1 of 4</p>
+        <h3 class="text-center mb-16">Pick your vibe right now</h3>
+        <div class="mood-grid">
+          <div class="mood-item">😴<span class="mood-label">Tired</span></div>
+          <div class="mood-item selected">😰<span class="mood-label">Stressed</span></div>
+          <div class="mood-item">😊<span class="mood-label">Good</span></div>
+          <div class="mood-item">😤<span class="mood-label">Frustrated</span></div>
+          <div class="mood-item">😢<span class="mood-label">Sad</span></div>
+          <div class="mood-item">🤔<span class="mood-label">Confused</span></div>
+          <div class="mood-item">😎<span class="mood-label">Confident</span></div>
+          <div class="mood-item">😶<span class="mood-label">Numb</span></div>
+        </div>
+        <p class="text-center text-muted text-small mt-16">Tap the one that fits</p>
+      </div>
+      <div class="phone-label">Screen 2: Mood Select (= Intake Q1)</div>
+    </div>
+
+    <!-- Screen 3: What's on your mind -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <div class="progress-bar"><div class="progress-fill fill-cyan" style="width: 50%;"></div></div>
+        <p class="text-center text-muted text-small mb-16">2 of 4</p>
+        <h3 class="text-center mb-16">What's been heavy lately?</h3>
+        <p class="text-center text-muted text-small mb-16">Pick up to 3</p>
+        <div class="mood-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="mood-item selected">📚<span class="mood-label">School Stress</span></div>
+          <div class="mood-item">👥<span class="mood-label">Friend Drama</span></div>
+          <div class="mood-item selected">🏠<span class="mood-label">Family Stuff</span></div>
+          <div class="mood-item">📱<span class="mood-label">Online Life</span></div>
+          <div class="mood-item">🪞<span class="mood-label">How I See Me</span></div>
+          <div class="mood-item">😶‍🌫️<span class="mood-label">Just...Off</span></div>
+        </div>
+      </div>
+      <div class="phone-label">Screen 3: Concerns Select (= Intake Q2)</div>
+    </div>
+  </div>
+
+  <div class="phone-row">
+    <!-- Screen 4: Safety gate (subtle) -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <div class="progress-bar"><div class="progress-fill fill-cyan" style="width: 75%;"></div></div>
+        <p class="text-center text-muted text-small mb-16">3 of 4</p>
+        <h3 class="text-center mb-16">One more thing...</h3>
+        <p class="text-center text-muted" style="font-size: 0.85rem; margin-bottom: 24px;">So we can make this the right fit for you</p>
+        <div class="card" style="margin-bottom: 16px;">
+          <p style="font-size: 0.9rem; margin-bottom: 12px;">Do you feel safe at home?</p>
+          <div style="display: flex; gap: 12px;">
+            <div class="mock-btn btn-outline" style="flex: 1; margin: 0;">Yes</div>
+            <div class="mock-btn btn-outline" style="flex: 1; margin: 0; border-color: var(--amber); color: var(--amber);">Not always</div>
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-size: 0.9rem; margin-bottom: 12px;">Have you had thoughts of hurting yourself?</p>
+          <div style="display: flex; gap: 12px;">
+            <div class="mock-btn btn-outline" style="flex: 1; margin: 0;">No</div>
+            <div class="mock-btn btn-outline" style="flex: 1; margin: 0; border-color: var(--rose); color: var(--rose);">Yes</div>
+          </div>
+        </div>
+        <p class="text-center text-muted text-small mt-16">Your answers are private and help us keep you safe</p>
+      </div>
+      <div class="phone-label">Screen 4: Safety Gate (= Intake Q3)</div>
+    </div>
+
+    <!-- Screen 5: Avatar Creation -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content text-center">
+        <div class="progress-bar"><div class="progress-fill fill-cyan" style="width: 100%;"></div></div>
+        <p class="text-muted text-small mb-16">4 of 4</p>
+        <h3 class="mb-8">Create your guide</h3>
+        <p class="text-muted text-small mb-16">This character grows with you</p>
+        <div class="avatar-display">🌱</div>
+        <p style="font-weight: 600; font-size: 1.1rem;">Seedling Stage</p>
+        <p class="text-muted text-small mb-16">Level 1 — Just getting started</p>
+        <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 24px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(6,182,212,0.1);">🌱</div>
+          <div style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.3;">🌿</div>
+          <div style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.3;">🌳</div>
+          <div style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; opacity: 0.3;">✨</div>
+        </div>
+        <div class="mock-btn btn-accent">Meet Your Guide</div>
+      </div>
+      <div class="phone-label">Screen 5: Avatar Intro</div>
+    </div>
+
+    <!-- Screen 6: Ready -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content text-center" style="padding-top: 40px;">
+        <div class="avatar-display">🌱</div>
+        <h3 style="margin: 16px 0 8px;">You're in.</h3>
+        <p class="text-muted" style="margin-bottom: 24px;">Your first story is waiting for you.</p>
+        <div class="social-proof">🎯 247 teens started their journey today</div>
+        <div style="margin: 24px 0;">
+          <div class="streak-badge">🔥 Day 1 — Your streak starts now</div>
+        </div>
+        <div style="margin-top: 32px;">
+          <div class="mock-btn btn-accent">Start My First Story</div>
+          <div class="mock-btn btn-outline" style="margin-top: 8px;">Explore first</div>
+        </div>
+      </div>
+      <div class="phone-label">Screen 6: Ready — First Mission CTA</div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <strong>Design Note:</strong> The 4-step quiz secretly completes the full intake: mood baseline (Q1), primary concerns (Q2), safety gate (Q3), and avatar selection (Q4). The teen experiences it as a fun quiz, not a clinical form. Total time: 30-45 seconds. Risk tier is computed silently in the background. If safety flags are detected, the app routes to a warm safety screen instead of the avatar step.
+  </div>
+</section>
+
+<!-- ===== 2. HOME SCREEN ===== -->
+<section class="section" id="home">
+  <div class="section-header">
+    <div class="section-number">2</div>
+    <h2>Home Screen — The Daily Vibe Check</h2>
+  </div>
+  <p class="section-desc">Every time the teen opens the app, this is what they see. The mood check is the gateway — one tap, and the whole experience personalizes around how they feel right now. This IS the daily signal capture, disguised as a warm greeting.</p>
+
+  <div class="phone-row">
+    <!-- Home Screen -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <p class="text-muted text-small">Good evening</p>
+            <p style="font-weight: 700; font-size: 1.2rem;">Hey there 👋</p>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <div class="streak-badge">🔥 7</div>
+            <div class="xp-badge">⭐ 340</div>
+          </div>
+        </div>
+
+        <div class="card card-glow-cyan">
+          <p class="text-center" style="font-weight: 600; margin-bottom: 12px;">How are you feeling?</p>
+          <div class="mood-grid">
+            <div class="mood-item">😊<span class="mood-label">Great</span></div>
+            <div class="mood-item">😐<span class="mood-label">Okay</span></div>
+            <div class="mood-item">😰<span class="mood-label">Anxious</span></div>
+            <div class="mood-item">😢<span class="mood-label">Low</span></div>
+          </div>
+        </div>
+
+        <div class="social-proof">🌊 38 teens checked in today near you</div>
+
+        <div class="story-card">
+          <div class="story-theme">Today's Story</div>
+          <div class="story-title">The Text That Was Left on Read</div>
+          <div class="story-desc">Your best friend hasn't replied in 3 hours. Your mind starts spinning...</div>
+          <div class="story-meta">
+            <span>⏱ 4 min</span>
+            <span>🏷 Peer</span>
+            <span>⭐ +25 XP</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <div class="card" style="flex: 1; text-align: center;">
+            <div style="font-size: 1.3rem;">📊</div>
+            <div class="text-small text-muted">My Week</div>
+          </div>
+          <div class="card" style="flex: 1; text-align: center;">
+            <div style="font-size: 1.3rem;">🧰</div>
+            <div class="text-small text-muted">Toolbox</div>
+          </div>
+          <div class="card" style="flex: 1; text-align: center;">
+            <div style="font-size: 1.3rem;">👥</div>
+            <div class="text-small text-muted">My Pack</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-bottom-nav">
+        <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+        <div class="nav-item"><div class="nav-icon">📖</div>Stories</div>
+        <div class="nav-item"><div class="nav-icon">👥</div>Pack</div>
+        <div class="nav-item"><div class="nav-icon">🌱</div>Me</div>
+      </div>
+      <div class="phone-label">Home Screen — Before Vibe Check</div>
+    </div>
+
+    <!-- After mood selection -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <p class="text-muted text-small">We hear you</p>
+            <p style="font-weight: 700; font-size: 1.2rem;">Feeling anxious? That's okay.</p>
+          </div>
+          <div class="streak-badge">🔥 7</div>
+        </div>
+
+        <div class="card" style="border-color: var(--amber); background: rgba(245,158,11,0.05);">
+          <p style="font-size: 0.9rem; text-align: center; color: var(--amber);">😰 Anxious</p>
+          <p class="text-center text-muted text-small">You're not alone — 12 others feel this way right now</p>
+        </div>
+
+        <div class="story-card">
+          <div class="story-theme">Matched For You</div>
+          <div class="story-title">The Night Before Finals</div>
+          <div class="story-desc">Your phone lights up with an exam reminder. 40% of your grade. Your heart starts pounding...</div>
+          <div class="story-meta">
+            <span>⏱ 5 min</span>
+            <span>🏷 School</span>
+            <span>⭐ +30 XP</span>
+          </div>
+        </div>
+        <div class="mock-btn btn-accent">Start This Story</div>
+
+        <p class="text-center text-muted text-small mt-16">or</p>
+
+        <div class="story-card" style="opacity: 0.7;">
+          <div class="story-theme">Also Available</div>
+          <div class="story-title">Mirror Moment</div>
+          <div class="story-desc">You catch your reflection and the voice in your head starts...</div>
+          <div class="story-meta">
+            <span>⏱ 3 min</span>
+            <span>🏷 Self</span>
+            <span>⭐ +20 XP</span>
+          </div>
+        </div>
+      </div>
+      <div class="phone-bottom-nav">
+        <div class="nav-item active"><div class="nav-icon">🏠</div>Home</div>
+        <div class="nav-item"><div class="nav-icon">📖</div>Stories</div>
+        <div class="nav-item"><div class="nav-icon">👥</div>Pack</div>
+        <div class="nav-item"><div class="nav-icon">🌱</div>Me</div>
+      </div>
+      <div class="phone-label">Home Screen — After Vibe Check (Personalized)</div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <strong>Engagement Mechanic:</strong> The mood tap IS the daily signal capture. One tap. No forms. The whole UI shifts color (warm amber for anxious, cool blue for calm, soft gray for tired). The mission recommendation changes instantly based on the mood selection + their baseline concerns from onboarding. Social proof ("38 teens checked in today") creates belonging. The streak counter and XP badge create habit pressure.
+  </div>
+</section>
+
+<!-- ===== 3. MISSION FLOW ===== -->
+<section class="section" id="mission">
+  <div class="section-header">
+    <div class="section-number">3</div>
+    <h2>Mission Flow — Choose Your Own Adventure</h2>
+  </div>
+  <p class="section-desc">The core experience. A relatable scenario unfolds. The teen reads, grounds themselves, and makes a choice. The app reveals what happens. Then they reflect — and share anonymously with their pack. 3-5 minutes, deeply personal.</p>
+
+  <div class="phone-row">
+    <!-- Story Intro -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span class="text-muted text-small">← Back</span>
+          <span class="text-accent text-small">Chapter 3 of 8</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill fill-cyan" style="width: 37%;"></div></div>
+
+        <h3 style="margin: 16px 0 8px;">The Night Before Finals</h3>
+        <div class="story-theme">School · Catastrophizing</div>
+
+        <div class="card card-glow-cyan" style="margin-top: 16px;">
+          <p style="font-size: 0.95rem; line-height: 1.7;">Your phone lights up at 9pm. An email from your teacher: <em>"Reminder: Final exam tomorrow. Worth 40% of your grade."</em></p>
+          <p style="font-size: 0.95rem; line-height: 1.7; margin-top: 12px;">Your heart starts pounding. Your mind spins: <em>"If I fail this, my GPA tanks. Then no good college. Then what? It's all over."</em></p>
+        </div>
+
+        <div class="sensory-box">
+          🫁 Pause. Feel your feet on the ground. Notice 3 things you can hear right now. You are safe.
+        </div>
+
+        <div class="mock-btn btn-accent" style="margin-top: 12px;">I'm Ready to Choose</div>
+      </div>
+      <div class="phone-label">Mission: Story + Grounding Prompt</div>
+    </div>
+
+    <!-- Choice Fork -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <h3 class="text-center mb-16">What do you do?</h3>
+
+        <div class="card" style="border-color: var(--green); background: rgba(16,185,129,0.05); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 1.2rem;">🌿</span>
+            <span style="font-weight: 700; color: var(--green);">Path A</span>
+          </div>
+          <p style="font-size: 0.9rem;">"Take a breath. One test doesn't decide my whole future. I've handled pressure before. Let me make a study plan for the next 2 hours."</p>
+          <p class="text-muted text-small" style="margin-top: 8px;">⭐ +30 XP</p>
+        </div>
+
+        <div class="flow-arrow">or</div>
+
+        <div class="card" style="border-color: var(--rose); background: rgba(244,63,94,0.05); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 1.2rem;">🌀</span>
+            <span style="font-weight: 700; color: var(--rose);">Path B</span>
+          </div>
+          <p style="font-size: 0.9rem;">"This is it. I'm going to fail. My entire future just fell apart. There's no point even trying anymore."</p>
+          <p class="text-muted text-small" style="margin-top: 8px;">⭐ +15 XP</p>
+        </div>
+
+        <p class="text-center text-muted text-small mt-16">Both paths teach you something. No wrong choice.</p>
+      </div>
+      <div class="phone-label">Mission: Choice Fork</div>
+    </div>
+
+    <!-- Consequence + Reflection -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <div class="card card-glow-purple" style="margin-bottom: 16px;">
+          <p style="font-weight: 600; color: var(--green); margin-bottom: 8px;">You chose Path A 🌿</p>
+          <p style="font-size: 0.9rem; line-height: 1.6;">"You create a small space between the panic and the facts. You make a plan: review notes for 90 minutes, set an alarm, get to bed by 11. The anxiety doesn't vanish — but it shrinks enough to let you focus."</p>
+        </div>
+
+        <div class="card" style="background: rgba(139,92,246,0.08); border-color: var(--accent2);">
+          <p style="font-size: 0.75rem; color: var(--accent2); font-weight: 600; margin-bottom: 4px;">THINKING TRAP SPOTTED</p>
+          <p style="font-weight: 600; margin-bottom: 4px;">Catastrophizing → Accurate Thinking</p>
+          <p class="text-muted text-small">You caught the spiral before it took over. One test ≠ your entire future.</p>
+        </div>
+
+        <p style="font-weight: 600; margin: 16px 0 8px;">What did this feel like?</p>
+        <div class="input-mock">Type your anonymous reflection here...</div>
+
+        <div class="mock-btn btn-purple" style="margin-top: 8px;">Share with My Pack</div>
+        <p class="text-center text-muted text-small" style="margin-top: 8px;">Anonymous. Only your pack sees this.</p>
+
+        <div style="display: flex; justify-content: center; gap: 12px; margin-top: 16px;">
+          <div class="xp-badge">⭐ +30 XP earned</div>
+          <div class="streak-badge">🔥 Day 7</div>
+        </div>
+      </div>
+      <div class="phone-label">Mission: Consequence + Reflect</div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <strong>Both paths give XP</strong> — Path A gives more, but Path B still rewards engagement. The point is that teens learn from BOTH choices. The "thinking trap spotted" card teaches the CBT concept without being clinical. The reflection is optional but incentivized (bonus XP for sharing). Anonymous by design.
+  </div>
+</section>
+
+<!-- ===== 4. GAMIFICATION ===== -->
+<section class="section" id="gamification">
+  <div class="section-header">
+    <div class="section-number">4</div>
+    <h2>Gamification — Streaks, XP, and Avatar Evolution</h2>
+  </div>
+  <p class="section-desc">Two intertwined systems: a streak/XP counter for daily habit formation, and a growing avatar that visually represents emotional growth. The avatar evolves through 5 stages — from seedling to a radiant tree — based on accumulated XP and insight diversity.</p>
+
+  <div class="phone-row">
+    <!-- XP/Streak System -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <h3 class="text-center mb-16">Your Progress</h3>
+
+        <div class="stat-row">
+          <div class="stat stat-amber">
+            <div class="stat-value">🔥 14</div>
+            <div class="stat-label">Day Streak</div>
+          </div>
+          <div class="stat stat-purple">
+            <div class="stat-value">680</div>
+            <div class="stat-label">Total XP</div>
+          </div>
+          <div class="stat stat-green">
+            <div class="stat-value">8</div>
+            <div class="stat-label">Stories Done</div>
+          </div>
+        </div>
+
+        <div class="card mt-16">
+          <p style="font-weight: 600; margin-bottom: 8px;">How You Earn XP</p>
+          <table class="spec-table">
+            <tr><td>Daily vibe check</td><td class="text-accent" style="text-align: right;">+10 XP</td></tr>
+            <tr><td>Complete a story (Path A)</td><td class="text-accent" style="text-align: right;">+25-30 XP</td></tr>
+            <tr><td>Complete a story (Path B)</td><td class="text-accent" style="text-align: right;">+15-20 XP</td></tr>
+            <tr><td>Write a reflection</td><td class="text-accent" style="text-align: right;">+15 XP</td></tr>
+            <tr><td>Share to pack</td><td class="text-accent" style="text-align: right;">+10 XP</td></tr>
+            <tr><td>Use a toolbox tool</td><td class="text-accent" style="text-align: right;">+5 XP</td></tr>
+            <tr><td>7-day streak bonus</td><td class="text-amber" style="text-align: right;">+50 XP</td></tr>
+            <tr><td>React to a pack post</td><td class="text-accent" style="text-align: right;">+5 XP</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="phone-label">XP & Streak System</div>
+    </div>
+
+    <!-- Avatar Evolution -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content text-center">
+        <h3 class="mb-16">Your Guide's Journey</h3>
+
+        <div class="avatar-display" style="font-size: 2.5rem;">🌿</div>
+        <p style="font-weight: 700; font-size: 1.2rem;">Sprout Stage</p>
+        <p class="text-accent text-small mb-16">Level 2 · 680 / 1000 XP</p>
+        <div class="progress-bar" style="height: 12px;"><div class="progress-fill fill-cyan" style="width: 68%;"></div></div>
+        <p class="text-muted text-small" style="margin: 8px 0 24px;">320 XP until next evolution</p>
+
+        <div style="display: flex; justify-content: space-around; margin-bottom: 24px;">
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; opacity: 0.4;">🌱</div>
+            <div class="text-small text-muted">Seedling</div>
+            <div class="text-small text-green">0 XP ✓</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2rem;">🌿</div>
+            <div class="text-small text-accent" style="font-weight: 700;">Sprout</div>
+            <div class="text-small text-accent">500 XP ✓</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; opacity: 0.4;">🌳</div>
+            <div class="text-small text-muted">Sapling</div>
+            <div class="text-small text-muted">1000 XP</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; opacity: 0.4;">🌲</div>
+            <div class="text-small text-muted">Tree</div>
+            <div class="text-small text-muted">2500 XP</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 2rem; opacity: 0.4;">✨</div>
+            <div class="text-small text-muted">Radiant</div>
+            <div class="text-small text-muted">5000 XP</div>
+          </div>
+        </div>
+
+        <div class="card" style="text-align: left;">
+          <p style="font-weight: 600; font-size: 0.85rem; margin-bottom: 8px;">Unlock at Sapling (Level 3)</p>
+          <p class="text-muted text-small">🔓 Custom avatar colors</p>
+          <p class="text-muted text-small">🔓 Weekly replay insights</p>
+          <p class="text-muted text-small">🔓 Pack mentor badge</p>
+        </div>
+      </div>
+      <div class="phone-label">Avatar Evolution Stages</div>
+    </div>
+
+    <!-- Weekly Streak Screen -->
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <h3 class="text-center mb-16">This Week</h3>
+
+        <div style="display: flex; justify-content: space-around; margin-bottom: 20px;">
+          <div style="text-align: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;">✓</div><span class="text-small text-muted">Mon</span></div>
+          <div style="text-align: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;">✓</div><span class="text-small text-muted">Tue</span></div>
+          <div style="text-align: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;">✓</div><span class="text-small text-muted">Wed</span></div>
+          <div style="text-align: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;">✓</div><span class="text-small text-muted">Thu</span></div>
+          <div style="text-align: center;"><div style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 4px;">⭐</div><span class="text-small text-accent" style="font-weight: 700;">Fri</span></div>
+          <div style="text-align: center;"><div style="width: 36px; height: 36px; border-radius: 50%; border: 2px dashed var(--border); margin: 0 auto 4px;"></div><span class="text-small text-muted">Sat</span></div>
+          <div style="text-align: center;"><div style="width: 36px; height: 36px; border-radius: 50%; border: 2px dashed var(--border); margin: 0 auto 4px;"></div><span class="text-small text-muted">Sun</span></div>
+        </div>
+
+        <div class="card card-glow-purple">
+          <p style="font-weight: 600; margin-bottom: 8px;">Thinking Traps This Week</p>
+          <div class="level-bar">
+            <span class="level-label">Accurate</span>
+            <div class="progress-bar" style="flex: 1;"><div class="progress-fill fill-cyan" style="width: 75%;"></div></div>
+            <span class="text-small text-muted">6x</span>
+          </div>
+          <div class="level-bar">
+            <span class="level-label" style="color: var(--rose);">Catast.</span>
+            <div class="progress-bar" style="flex: 1;"><div class="progress-fill" style="width: 25%; background: var(--rose);"></div></div>
+            <span class="text-small text-muted">2x</span>
+          </div>
+          <div class="level-bar">
+            <span class="level-label" style="color: var(--amber);">Mind R.</span>
+            <div class="progress-bar" style="flex: 1;"><div class="progress-fill fill-amber" style="width: 12%;"></div></div>
+            <span class="text-small text-muted">1x</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <p style="font-weight: 600; margin-bottom: 4px;">Your Pattern</p>
+          <p class="text-muted text-small">You're getting better at catching catastrophizing before it spirals. That's real growth. 🌱</p>
+        </div>
+
+        <div class="card" style="border-color: var(--amber);">
+          <p style="font-weight: 600; margin-bottom: 4px; color: var(--amber);">🏆 Achievement Unlocked</p>
+          <p class="text-muted text-small">7-day streak! +50 bonus XP. Your guide is proud of you.</p>
+        </div>
+      </div>
+      <div class="phone-label">Weekly Replay + Patterns</div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <strong>Avatar Evolution Stages:</strong><br>
+    🌱 <strong>Seedling</strong> (0-499 XP) — Just started. Learning to notice feelings.<br>
+    🌿 <strong>Sprout</strong> (500-999 XP) — Growing awareness. Starting to catch thinking traps.<br>
+    🌳 <strong>Sapling</strong> (1000-2499 XP) — Consistent practice. Unlocks weekly insights and custom colors.<br>
+    🌲 <strong>Tree</strong> (2500-4999 XP) — Strong roots. Can become a pack mentor. Earns badge.<br>
+    ✨ <strong>Radiant</strong> (5000+ XP) — Deep self-awareness. Full customization. Featured in pack highlights.
+  </div>
+</section>
+
+<!-- ===== 5. PACK FEED ===== -->
+<section class="section" id="pack">
+  <div class="section-header">
+    <div class="section-number">5</div>
+    <h2>Pack Feed — Anonymous Peer Connection</h2>
+  </div>
+  <p class="section-desc">A closed, moderated feed of anonymous reflections from 6-8 peers. No names. No photos. Just real feelings from real teens. Reactions are emoji-only — no free text replies (safety by design). Completing a mission is required to unlock posting.</p>
+
+  <div class="phone-row">
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <h3 style="margin-bottom: 4px;">My Pack</h3>
+        <p class="text-muted text-small mb-16">7 members · Safe space</p>
+
+        <div class="pack-post">
+          <div class="pack-alias">🌊 Quiet Orbit</div>
+          <div class="pack-text">I realized I was catastrophizing about the exam. Like, one test really doesn't decide my life. It felt good to name it.</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="pack-reactions">
+              <span class="reaction">💛 3</span>
+              <span class="reaction">🤝 I relate</span>
+            </div>
+            <span class="text-muted text-small">2h ago</span>
+          </div>
+        </div>
+
+        <div class="pack-post">
+          <div class="pack-alias">🔮 Soft Thunder</div>
+          <div class="pack-text">The friend-text mission hit different today. I always assume people are mad at me when they don't reply. Working on it.</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="pack-reactions">
+              <span class="reaction">💛 5</span>
+              <span class="reaction">💡 This helped</span>
+            </div>
+            <span class="text-muted text-small">4h ago</span>
+          </div>
+        </div>
+
+        <div class="pack-post">
+          <div class="pack-alias">🌙 Calm Static</div>
+          <div class="pack-text">Chose the spiral path on the mirror moment story. Seeing the consequence written out... that's literally what happens in my head. Wild.</div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="pack-reactions">
+              <span class="reaction">💛 7</span>
+              <span class="reaction">🤝 I relate</span>
+              <span class="reaction">💡 2</span>
+            </div>
+            <span class="text-muted text-small">6h ago</span>
+          </div>
+        </div>
+
+        <div class="card" style="text-align: center; border-style: dashed;">
+          <p class="text-muted text-small">Complete today's story to share with your pack</p>
+          <div class="mock-btn btn-accent" style="font-size: 0.85rem; margin-top: 8px;">Start Today's Story</div>
+        </div>
+      </div>
+      <div class="phone-bottom-nav">
+        <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+        <div class="nav-item"><div class="nav-icon">📖</div>Stories</div>
+        <div class="nav-item active"><div class="nav-icon">👥</div>Pack</div>
+        <div class="nav-item"><div class="nav-icon">🌱</div>Me</div>
+      </div>
+      <div class="phone-label">Pack Feed — Peer Reflections</div>
+    </div>
+
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <h3 class="text-center mb-16">Pack Mood Cloud</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 24px;">
+          <div style="font-size: 2.5rem; padding: 8px; border-radius: 16px; background: rgba(6,182,212,0.1);">😊</div>
+          <div style="font-size: 2rem; padding: 8px; border-radius: 16px; background: rgba(245,158,11,0.1);">😰</div>
+          <div style="font-size: 2rem; padding: 8px; border-radius: 16px; background: rgba(245,158,11,0.1);">😰</div>
+          <div style="font-size: 1.5rem; padding: 8px; border-radius: 16px; background: rgba(16,185,129,0.1);">😊</div>
+          <div style="font-size: 1.5rem; padding: 8px; border-radius: 16px; background: rgba(148,163,184,0.1);">😐</div>
+          <div style="font-size: 2.5rem; padding: 8px; border-radius: 16px; background: rgba(16,185,129,0.1);">😊</div>
+          <div style="font-size: 1.8rem; padding: 8px; border-radius: 16px; background: rgba(244,63,94,0.1);">😢</div>
+        </div>
+        <p class="text-center text-muted text-small mb-16">Your pack's vibe today: mostly good with some anxiety</p>
+
+        <div class="card">
+          <p style="font-weight: 600; margin-bottom: 8px;">Pack Stats</p>
+          <div class="stat-row">
+            <div class="stat stat-cyan"><div class="stat-value">23</div><div class="stat-label">Stories done<br>this week</div></div>
+            <div class="stat stat-green"><div class="stat-value">82%</div><div class="stat-label">Chose Path A<br>this week</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <p style="font-weight: 600; margin-bottom: 4px;">Safety</p>
+          <p class="text-muted text-small">Your pack is fully moderated. All posts are anonymized and scanned for safety. No names, photos, or identifiable info shared.</p>
+          <p class="text-small" style="color: var(--rose); margin-top: 8px;">🚩 Report something</p>
+        </div>
+      </div>
+      <div class="phone-bottom-nav">
+        <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+        <div class="nav-item"><div class="nav-icon">📖</div>Stories</div>
+        <div class="nav-item active"><div class="nav-icon">👥</div>Pack</div>
+        <div class="nav-item"><div class="nav-icon">🌱</div>Me</div>
+      </div>
+      <div class="phone-label">Pack Mood Cloud + Stats</div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <strong>Safety by Design:</strong> Pack aliases are auto-generated (never real names). Reactions are emoji-only — no free-text replies prevents bullying. All posts pass through automated safety scan + human review queue. CRISIS-tier teens cannot post or see the pack (they get 1:1 mentor support instead). The "complete a mission to post" gate ensures quality and prevents spam.
+  </div>
+</section>
+
+<!-- ===== 6. TOOLBOX ===== -->
+<section class="section" id="toolbox">
+  <div class="section-header">
+    <div class="section-number">6</div>
+    <h2>Toolbox — Quick Regulation Tools</h2>
+  </div>
+  <p class="section-desc">Always accessible from any screen. 15 self-regulation tools across 5 categories. Designed for "I'm freaking out right now" moments. Each tool earns 5 XP. Usage is logged for mentor visibility.</p>
+
+  <div class="phone-row">
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content">
+        <h3 style="margin-bottom: 4px;">Toolbox</h3>
+        <p class="text-muted text-small mb-16">Quick tools for tough moments</p>
+
+        <div class="card" style="border-color: var(--rose); background: rgba(244,63,94,0.05); text-align: center; margin-bottom: 16px;">
+          <p style="font-weight: 700; color: var(--rose);">🆘 I Need Help Now</p>
+          <p class="text-small text-muted">If you're in crisis, tap here</p>
+        </div>
+
+        <p class="text-small text-accent" style="font-weight: 600; margin-bottom: 8px;">BREATHING</p>
+        <div class="tool-grid">
+          <div class="tool-item"><div class="tool-icon">🫁</div>Box Breathing<div class="text-muted text-small">3 min</div></div>
+          <div class="tool-item"><div class="tool-icon">🖐</div>5-Finger Breath<div class="text-muted text-small">2 min</div></div>
+        </div>
+
+        <p class="text-small text-accent" style="font-weight: 600; margin-bottom: 8px; margin-top: 16px;">GROUNDING</p>
+        <div class="tool-grid">
+          <div class="tool-item"><div class="tool-icon">👁</div>5-4-3-2-1 Senses<div class="text-muted text-small">5 min</div></div>
+          <div class="tool-item"><div class="tool-icon">🧘</div>Body Scan<div class="text-muted text-small">10 min</div></div>
+        </div>
+
+        <p class="text-small text-accent" style="font-weight: 600; margin-bottom: 8px; margin-top: 16px;">MOVEMENT</p>
+        <div class="tool-grid">
+          <div class="tool-item"><div class="tool-icon">🤸</div>Shake It Out<div class="text-muted text-small">3 min</div></div>
+          <div class="tool-item"><div class="tool-icon">🚶</div>Walk & Talk<div class="text-muted text-small">15 min</div></div>
+        </div>
+      </div>
+      <div class="phone-bottom-nav">
+        <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+        <div class="nav-item"><div class="nav-icon">📖</div>Stories</div>
+        <div class="nav-item"><div class="nav-icon">👥</div>Pack</div>
+        <div class="nav-item active"><div class="nav-icon">🌱</div>Me</div>
+      </div>
+      <div class="phone-label">Toolbox — Quick Access</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7. JOURNEY MAP ===== -->
+<section class="section" id="journey">
+  <div class="section-header">
+    <div class="section-number">7</div>
+    <h2>Journey Map — "Me" Profile</h2>
+  </div>
+  <p class="section-desc">The teen's personal dashboard showing their avatar, stats, journey progress, and achievements. This is where they see how far they've come.</p>
+
+  <div class="phone-row">
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content text-center">
+        <div class="avatar-display" style="margin-top: 8px;">🌿</div>
+        <p style="font-weight: 700; font-size: 1.2rem;">Sprout · Level 2</p>
+        <div class="progress-bar" style="margin: 8px 24px;"><div class="progress-fill fill-cyan" style="width: 68%;"></div></div>
+        <p class="text-muted text-small mb-16">680 / 1000 XP to Sapling</p>
+
+        <div class="stat-row">
+          <div class="stat stat-amber"><div class="stat-value">14</div><div class="stat-label">Day Streak</div></div>
+          <div class="stat stat-cyan"><div class="stat-value">8</div><div class="stat-label">Stories</div></div>
+          <div class="stat stat-green"><div class="stat-value">75%</div><div class="stat-label">Path A Rate</div></div>
+        </div>
+
+        <div class="card" style="text-align: left; margin-top: 16px;">
+          <p style="font-weight: 600; margin-bottom: 8px;">Achievements</p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span style="padding: 4px 10px; border-radius: 12px; background: rgba(245,158,11,0.15); font-size: 0.75rem; color: var(--amber);">🔥 7-Day Streak</span>
+            <span style="padding: 4px 10px; border-radius: 12px; background: rgba(16,185,129,0.15); font-size: 0.75rem; color: var(--green);">🌿 First Evolution</span>
+            <span style="padding: 4px 10px; border-radius: 12px; background: rgba(139,92,246,0.15); font-size: 0.75rem; color: var(--accent2);">💡 Trap Spotter</span>
+            <span style="padding: 4px 10px; border-radius: 12px; background: rgba(6,182,212,0.15); font-size: 0.75rem; color: var(--accent);">👥 Pack Contributor</span>
+          </div>
+        </div>
+
+        <div class="card" style="text-align: left;">
+          <p style="font-weight: 600; margin-bottom: 8px;">My Thinking Growth</p>
+          <p class="text-muted text-small">You've recognized 6 thinking traps this week. You're catching catastrophizing 3x faster than when you started.</p>
+        </div>
+      </div>
+      <div class="phone-bottom-nav">
+        <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
+        <div class="nav-item"><div class="nav-icon">📖</div>Stories</div>
+        <div class="nav-item"><div class="nav-icon">👥</div>Pack</div>
+        <div class="nav-item active"><div class="nav-icon">🌱</div>Me</div>
+      </div>
+      <div class="phone-label">Me — Profile & Journey</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 8. SAFETY ===== -->
+<section class="section" id="safety">
+  <div class="section-header">
+    <div class="section-number">8</div>
+    <h2>Safety Layer — Always Running</h2>
+  </div>
+  <p class="section-desc">Safety is never visible until needed. The system silently monitors daily signals, reflections, and toolbox usage for risk indicators. When triggered, it responds proportionally — from a gentle prompt to immediate crisis intervention.</p>
+
+  <div class="phone-row">
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content text-center" style="padding-top: 40px;">
+        <div style="font-size: 3rem; margin-bottom: 16px;">💛</div>
+        <h3>We want to make sure you're okay</h3>
+        <p class="text-muted" style="margin: 16px 0;">We noticed you've been feeling low for a few days. That takes courage to show up every day.</p>
+
+        <div class="card" style="border-color: var(--amber); text-align: left;">
+          <p style="font-weight: 600; margin-bottom: 8px;">Would any of these help?</p>
+          <div class="mock-btn btn-outline" style="text-align: left;">💬 Talk to my mentor</div>
+          <div class="mock-btn btn-outline" style="text-align: left;">📞 Crisis text line (741741)</div>
+          <div class="mock-btn btn-outline" style="text-align: left;">🧰 Open my toolbox</div>
+          <div class="mock-btn btn-outline" style="text-align: left;">✨ I'm okay, keep going</div>
+        </div>
+
+        <p class="text-muted text-small mt-16">Your mentor has been notified that you might need support. They'll reach out soon.</p>
+      </div>
+      <div class="phone-label">Safety Interrupt (AMBER Tier)</div>
+    </div>
+
+    <div class="phone">
+      <div class="phone-status"><div class="phone-notch"></div></div>
+      <div class="phone-content text-center" style="padding-top: 40px;">
+        <div style="font-size: 3rem; margin-bottom: 16px;">🆘</div>
+        <h3 style="color: var(--rose);">You're not alone</h3>
+        <p class="text-muted" style="margin: 16px 0;">If you're thinking about hurting yourself, please reach out. You matter.</p>
+
+        <div class="mock-btn btn-rose" style="font-size: 1.1rem; padding: 18px;">📞 Call 988 (Suicide & Crisis Lifeline)</div>
+        <div class="mock-btn btn-outline" style="border-color: var(--rose);">💬 Text HOME to 741741</div>
+        <div class="mock-btn btn-outline">🏥 Find help near me</div>
+
+        <div class="card" style="margin-top: 24px; border-color: var(--rose); text-align: left;">
+          <p class="text-small" style="color: var(--rose); font-weight: 600;">What happens next:</p>
+          <p class="text-muted text-small">Your mentor and a trusted adult will be notified. This is to keep you safe. You can still use your toolbox anytime.</p>
+        </div>
+      </div>
+      <div class="phone-label">Crisis Screen (RED/CRISIS Tier)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 9. NAVIGATION ===== -->
+<section class="section" id="navigation">
+  <div class="section-header">
+    <div class="section-number">9</div>
+    <h2>Navigation Structure</h2>
+  </div>
+
+  <div class="card">
+    <table class="spec-table">
+      <tr><th>Tab</th><th>Icon</th><th>Content</th><th>Primary Action</th></tr>
+      <tr><td><strong>Home</strong></td><td>🏠</td><td>Vibe check, today's story, quick stats, toolbox shortcut</td><td>Daily mood check-in + start mission</td></tr>
+      <tr><td><strong>Stories</strong></td><td>📖</td><td>Full mission library, filtered by theme. Completed vs available. Arc progress.</td><td>Browse and select missions</td></tr>
+      <tr><td><strong>Pack</strong></td><td>👥</td><td>Anonymous peer reflections, mood cloud, pack stats</td><td>Read + react to peers</td></tr>
+      <tr><td><strong>Me</strong></td><td>🌱</td><td>Avatar, XP, streak, achievements, weekly replay, thinking patterns, toolbox</td><td>Track progress + use tools</td></tr>
+    </table>
+  </div>
+
+  <div class="annotation">
+    <strong>Navigation Rule:</strong> The bottom tab bar is always visible except during an active mission (full-screen immersion). A floating toolbox button (🧰) is accessible from every screen for emergency self-regulation access.
+  </div>
+</section>
+
+<!-- ===== 10. TECH SPECS ===== -->
+<section class="section" id="specs">
+  <div class="section-header">
+    <div class="section-number">10</div>
+    <h2>Technical Implementation Spec</h2>
+  </div>
+
+  <div class="card">
+    <table class="spec-table">
+      <tr><th>Layer</th><th>Technology</th><th>Notes</th></tr>
+      <tr><td>Web Frontend</td><td>Next.js 15 App Router</td><td>Responsive pages under /teen/* route group. Web-first for rapid iteration.</td></tr>
+      <tr><td>Mobile (Phase 2)</td><td>React Native + Expo 53</td><td>Port validated web UX to native. Share API layer and types.</td></tr>
+      <tr><td>Styling</td><td>Tailwind CSS (web) / NativeWind (mobile)</td><td>Dark theme. Shared design tokens across platforms.</td></tr>
+      <tr><td>State</td><td>React Context + Server Components</td><td>Auth context, mood state, avatar state. No Redux needed yet.</td></tr>
+      <tr><td>Auth</td><td>Mock tokens (Phase 1) → OAuth (Phase 2)</td><td>Bearer token auth. Parental consent gate before teen account creation.</td></tr>
+      <tr><td>API</td><td>Next.js Route Handlers</td><td>All under /api/teen/*. Same endpoints serve web and mobile.</td></tr>
+      <tr><td>Database</td><td>PostgreSQL + Prisma ORM</td><td>Existing schema covers missions, daily signals, intake, pack, toolbox.</td></tr>
+      <tr><td>Gamification</td><td>New DB models: XPEvent, AvatarState, Achievement, Streak</td><td>Server-side XP calculation. Avatar stage computed from total XP.</td></tr>
+      <tr><td>Safety</td><td>Risk scoring engine</td><td>Runs on daily signal + reflection content. Triggers mentor alerts.</td></tr>
+    </table>
+  </div>
+
+  <h3 style="margin: 24px 0 16px;">New Database Models Needed</h3>
+  <div class="card">
+    <table class="spec-table">
+      <tr><th>Model</th><th>Purpose</th><th>Key Fields</th></tr>
+      <tr><td>XPEvent</td><td>Every XP-earning action logged</td><td>teenId, source (mission/check-in/reflection/tool/streak), amount, createdAt</td></tr>
+      <tr><td>AvatarState</td><td>Current avatar stage per teen</td><td>teenId, stage (SEEDLING/SPROUT/SAPLING/TREE/RADIANT), totalXP, customization</td></tr>
+      <tr><td>Achievement</td><td>Unlocked badges/milestones</td><td>teenId, achievementType, unlockedAt</td></tr>
+      <tr><td>StreakRecord</td><td>Daily streak tracking</td><td>teenId, currentStreak, longestStreak, lastCheckInDate</td></tr>
+      <tr><td>PackAlias</td><td>Anonymous aliases for pack posts</td><td>teenId, packId, alias (e.g., "Quiet Orbit"), assignedAt</td></tr>
+    </table>
+  </div>
+
+  <h3 style="margin: 24px 0 16px;">Build Order (Recommended)</h3>
+  <div class="card">
+    <table class="spec-table">
+      <tr><th>Phase</th><th>What</th><th>Time</th></tr>
+      <tr><td><strong>Phase A</strong></td><td>Web teen pages: onboarding quiz → home screen → vibe check → mission flow. Connect to existing APIs.</td><td>1-2 weeks</td></tr>
+      <tr><td><strong>Phase B</strong></td><td>Gamification: XP system, streak tracking, avatar evolution. New DB models + UI.</td><td>1 week</td></tr>
+      <tr><td><strong>Phase C</strong></td><td>Pack feed: anonymous reflections, mood cloud, emoji reactions. Moderation layer.</td><td>1-2 weeks</td></tr>
+      <tr><td><strong>Phase D</strong></td><td>Journey map: weekly replay, thinking pattern charts, achievements.</td><td>1 week</td></tr>
+      <tr><td><strong>Phase E</strong></td><td>Safety layer: risk scoring, mentor alerts, crisis screens.</td><td>1 week</td></tr>
+      <tr><td><strong>Phase F</strong></td><td>Port to React Native / Expo for mobile release.</td><td>2-3 weeks</td></tr>
+    </table>
+  </div>
+</section>
+
+<footer style="text-align: center; padding: 48px 0; border-top: 1px solid var(--border); margin-top: 48px;">
+  <p class="text-muted">EmpathiQ Teen UX Flow v2.0 — April 2026</p>
+  <p class="text-muted text-small">Designed for engagement, built for safety, rooted in empathy.</p>
+</footer>
+
+</div>
+</body>
+</html>
