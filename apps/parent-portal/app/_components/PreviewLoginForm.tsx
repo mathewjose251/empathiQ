@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 export function PreviewLoginForm({ nextPath }: { nextPath: string }) {
   const router = useRouter();
 
-  const [username, setUsername] = useState("testuser");
-  const [password, setPassword] = useState("betternow");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,15 +81,10 @@ export function PreviewLoginForm({ nextPath }: { nextPath: string }) {
 
       {error ? <p className="login-error">{error}</p> : null}
 
-      <div className="login-hint">
-        <strong>Test credentials</strong>
-        <span>`testuser` / `betternow`</span>
-      </div>
-
       <div className="login-links">
-        <a href="/teen/survey">Open teen survey</a>
-        <a href="/tween/survey">Open tween survey</a>
-        <a href="/parent/survey">Open parent survey</a>
+        <a href="/survey/teen">Open teen survey</a>
+        <a href="/survey/tween">Open tween survey</a>
+        <a href="/survey/parent">Open parent survey</a>
       </div>
     </form>
   );

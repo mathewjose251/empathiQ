@@ -8,9 +8,9 @@ export const PREVIEW_PASSWORD =
 
 const PUBLIC_EXACT_PATHS = new Set([
   "/login",
-  "/teen/survey",
-  "/tween/survey",
-  "/parent/survey",
+  "/survey/teen",
+  "/survey/tween",
+  "/survey/parent",
 ]);
 
 const PUBLIC_PREFIXES = [

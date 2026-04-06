@@ -8,7 +8,7 @@ const PARENT_NAV = [
   { href: "/parent/insights", label: "Insights", emoji: "📊" },
   { href: "/parent/learn", label: "Learn", emoji: "💡" },
   { href: "/parent/moments", label: "Moments", emoji: "🤝" },
-  { href: "/parent/survey", label: "Survey", emoji: "📝" },
+  { href: "/survey/parent", label: "Survey", emoji: "📝" },
 ];
 
 const ECOSYSTEM_NAV = [
