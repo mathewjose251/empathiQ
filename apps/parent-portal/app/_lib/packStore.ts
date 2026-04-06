@@ -685,9 +685,7 @@ export async function createPackPost(
         decision:
           moderationStatus === "ESCALATED"
             ? "ESCALATE_TO_ADMIN"
-            : moderationStatus === "BLOCKED"
-              ? "KEEP_BLOCKED"
-              : "REQUEST_MANUAL_REVIEW",
+            : "REQUEST_MANUAL_REVIEW", // QUEUED posts go to REQUEST_MANUAL_REVIEW
         notes: `RISK_ZONE:${riskClassification.zone}|CONFIDENCE:${(riskClassification.confidence * 100).toFixed(0)}%|${riskClassification.reasoning}`,
       },
     });
