@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getAdminPackConsole } from "../../../_data/packData";
+import { getAdminPackConsole } from "../../../_lib/packStore";
 
 export async function GET() {
-  return NextResponse.json(getAdminPackConsole());
+  return NextResponse.json(await getAdminPackConsole());
 }

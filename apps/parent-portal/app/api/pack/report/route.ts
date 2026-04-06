@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import type { ReportPackPostInput } from "@empathiq/shared/contracts/pack";
-import { reportPackPost } from "../../../_data/packData";
+import { reportPackPost } from "../../../_lib/packStore";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as ReportPackPostInput;
@@ -13,5 +13,5 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json(reportPackPost(body));
+  return NextResponse.json(await reportPackPost(body));
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import type { HidePackAliasInput } from "@empathiq/shared/contracts/pack";
-import { hidePackAlias } from "../../../_data/packData";
+import { hidePackAlias } from "../../../_lib/packStore";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as HidePackAliasInput;
@@ -10,5 +10,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "alias is required." }, { status: 400 });
   }
 
-  return NextResponse.json(hidePackAlias(body));
+  return NextResponse.json(await hidePackAlias(body));
 }

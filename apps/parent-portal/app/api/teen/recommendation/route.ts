@@ -10,7 +10,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@empathiq/database";
+import { getMissionBySlug } from "@empathiq/shared/missions/missionFactory";
 import { getAuthContext } from "../../../_lib/teenAuth";
+import { ensureMissionCatalogSynced } from "../../../_lib/missionCatalogStore";
 
 /**
  * Determine mission lane based on primary concerns
@@ -36,6 +38,12 @@ function determineMissionLane(primaryConcerns: string[]): string {
  * Matches against known mission lane keywords
  */
 function extractMissionTheme(mission: { slug: string; title: string }): string {
+  const sharedMission = getMissionBySlug(mission.slug);
+
+  if (sharedMission) {
+    return sharedMission.theme;
+  }
+
   const slug = mission.slug.toLowerCase();
   const title = mission.title.toLowerCase();
 
@@ -53,6 +61,8 @@ export async function GET(request: NextRequest) {
     // Validate auth
     const authHeader = request.headers.get("Authorization");
     const { teenId } = getAuthContext(authHeader);
+
+    await ensureMissionCatalogSynced();
 
     // Fetch teen's baseline (intake record)
     const intakeRecord = await prisma.intakeRecord.findUnique({

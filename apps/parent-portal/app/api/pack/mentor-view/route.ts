@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getMentorPackView } from "../../../_data/packData";
+import { getMentorPackView } from "../../../_lib/packStore";
 
 export async function GET() {
-  return NextResponse.json(getMentorPackView());
+  return NextResponse.json(await getMentorPackView());
 }

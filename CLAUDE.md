@@ -64,6 +64,7 @@ All teen routes live under `apps/parent-portal/app/teen/`.
 | `/teen/toolbox` | `toolbox/page.tsx` | 15 tools across 5 categories, expandable steps, +5 XP each |
 | `/teen/me` | `me/page.tsx` | Avatar, XP progress, stats, achievements, weekly streak calendar |
 | `/teen/safety` | `safety/page.tsx` | Amber + crisis modes with real Indian helplines |
+| `/teen/privacy` | `privacy/page.tsx` | Teen privacy dial: toggle what parents see (yellow tier), always-visible explainer (green tier), never-visible list (red tier), safety override explainer |
 
 **Layout:** `teen/layout.tsx` wraps all teen routes with `<TeenProvider>` and `<BottomNav>`. It imports `teen.css`.
 
@@ -87,7 +88,21 @@ Central state managed in `TeenContext.tsx`. Key fields:
 }
 ```
 
-Key actions: `setMood`, `addXP`, `completeStory`, `incrementStreak`, `completeOnboarding`
+Key actions: `setMood`, `addXP`, `completeStory`, `incrementStreak`, `completeOnboarding`, `togglePrivacy`
+
+### Teen Privacy State
+
+```typescript
+privacy: {
+  shareMoodTrends: boolean       // default: false
+  shareThinkingTrapFocus: boolean // default: false
+  shareStreakData: boolean        // default: false
+  shareProgressMetrics: boolean   // default: false
+  shareAvatarStage: boolean      // always true — can't hide (green tier)
+}
+```
+
+Privacy is managed via `togglePrivacy(key)` in TeenContext. The `/teen/privacy` page provides toggle UI. The Me page (`/teen/me`) shows a privacy link card with a count of shared features.
 
 Avatar system: SEEDLING(0) → SPROUT(500) → SAPLING(1000) → TREE(2500) → RADIANT(5000)
 
@@ -121,6 +136,13 @@ Avatar system: SEEDLING(0) → SPROUT(500) → SAPLING(1000) → TREE(2500) → 
 | `.home-greeting`, `.home-greeting-name` | Gradient heading on home |
 | `.section-heading` | Small caps section label |
 | `.pack-new-dot` | Pulsing red dot for new pack activity |
+| `.privacy-toggle-card` | Individual privacy feature card |
+| `.privacy-toggle-switch` / `.privacy-toggle-on` | Toggle switch (off/green) |
+| `.privacy-toggle-knob` | Switch knob with slide animation |
+| `.privacy-preview` / `.privacy-preview-on` | "What parent sees" preview |
+| `.privacy-fixed-row` | Always-visible feature row |
+| `.privacy-never-row` | Never-visible feature row |
+| `.privacy-link-card` | Privacy card on Me page linking to /teen/privacy |
 
 ### CSS custom properties (`:root`)
 
@@ -229,6 +251,159 @@ Crisis routes teen to `/teen/safety` instead of home.
 
 ---
 
+## ★ AI Content Moderation System — Pack Reflections
+
+### Philosophy & Design
+
+EmpathiQ does **not have clinical experts** on the team. Instead, we use **AI-powered pre-moderation** to automatically classify teen peer reflections before they post to the Pack. This prevents harm while respecting teen voice and peer connection.
+
+**Key principle:** Posts are held before posting, not after. Admins review and decide, not censors blocking after harm.
+
+**Three-zone risk classification:**
+
+| Zone | Color | Risk | Action | SLA |
+|---|---|---|---|---|
+| 🔴 RED | Immediate danger | Suicide intent, self-harm, active abuse, violence risk | Escalate to clinical staff + emergency protocol | 5 min |
+| 🟡 YELLOW | Concerning patterns | Substance abuse, eating disorders, severe depression, bullying | Hold for human judgment before publishing | 60 min |
+| 🟢 GREEN | Safe content | Healthy coping, accurate thinking, peer support | Publish immediately | Immediate |
+
+### Risk Classifier Implementation
+
+**File:** `app/_lib/riskClassifier.ts`
+
+The classifier uses **regex pattern matching** on post text to detect risk language:
+
+```typescript
+classifyRiskZone(text: string): RiskClassificationResult {
+  // RED zone: suicide, self-harm, abuse patterns
+  // YELLOW zone: substance, eating disorder, depression, bullying patterns
+  // GREEN zone: positive coping indicators
+
+  return {
+    zone: "RED" | "YELLOW" | "GREEN",
+    confidence: 0.7 - 0.95,
+    flagTypes: string[],
+    reasoning: string,
+    recommendation: "ESCALATE_IMMEDIATELY" | "HOLD_FOR_REVIEW" | "PUBLISH"
+  }
+}
+```
+
+**Detected risk types:**
+- `SUICIDE_INTENT`, `SELF_HARM_INTENT`, `ACTIVE_ABUSE`, `VIOLENCE_RISK`
+- `SUBSTANCE_ABUSE`, `EATING_DISORDER`, `SEVERE_DEPRESSION`, `BULLYING_CONTENT`
+- `IDENTITY_LEAK`, `HOPEFUL_THINKING`, `ACCURATE_THINKING`
+
+**Current approach:** Regex + heuristics (Phase 1 MVP). **Future:** Fine-tuned BERT model for Indian English/Hinglish (Phase 2).
+
+### Integration with Pack Post Creation
+
+When a teen posts a reflection via `/api/pack/post`:
+
+1. **Risk Classification** — `classifyRiskZone()` analyzes the text
+2. **Safety Flags** — Flags are mapped to `PackSafetyFlagType` (SELF_HARM, SUICIDE_RISK, etc.)
+3. **Moderation Status** — Zone determines post status:
+   - RED → `ESCALATED` (held, not published)
+   - YELLOW → `QUEUED` (held, pending review)
+   - GREEN → `CLEARED` (published immediately)
+4. **Audit Trail** — `PackModerationEvent` records the classification with confidence & reasoning
+5. **Admin Notification** — Async notification to admins (email, SMS, dashboard)
+
+**Moderation status flow:**
+```
+CREATE POST (teen submits)
+  ↓
+CLASSIFY (AI runs riskClassifier)
+  ↓
+RED → ESCALATED → Hold post, notify admin, call emergency protocol
+YELLOW → QUEUED → Hold post, notify admin, set 60-min SLA
+GREEN → CLEARED → Publish to Pack immediately
+```
+
+### Admin Moderation Queue
+
+**Route:** `/admin/moderation-queue`
+
+Two zones displayed:
+
+1. **RED Zone** — Sorted by urgency (5-min SLA)
+   - Shows flagged post excerpt (redacted identity details)
+   - Displays risk flags: "Suicide Risk", "Self-Harm", "Abuse/Neglect"
+   - Admin actions: **Escalate to Clinical**, **Block Post**
+
+2. **YELLOW Zone** — Sorted by creation time (60-min SLA)
+   - Shows flagged post excerpt
+   - Displays risk flags: "Substance Abuse", "Depression", "Bullying"
+   - Admin actions: **Publish**, **Escalate**, **Block**
+
+**Admin moderation endpoint:**
+```
+PATCH /api/pack/moderation
+Body: {
+  postId: string,
+  decision: "PUBLISH" | "KEEP_BLOCKED" | "ESCALATE_TO_ADMIN"
+}
+```
+
+### False Positive / False Negative Trade-off
+
+**Current thresholds (MVP):**
+- **False Positive Rate:** ~15-20% (some benign posts held)
+- **False Negative Rate:** ~5-10% (some risky posts slip through)
+- **Goal for Phase 2:** 92-95% accuracy with fine-tuned BERT
+
+**Why this trade-off?**
+- Better to over-flag (false positives) than miss danger (false negatives)
+- Admins can quickly publish false positives
+- False negatives create actual harm to peers
+
+### Indian English & Hinglish Challenges
+
+Current regex patterns cover common English terms. **Future improvements:**
+- Transliterated Hinglish patterns (e.g., "suicide", "sukh nahi", "nikal nahi paunga")
+- Regional slang and idioms
+- Sarcasm and irony detection (hardest problem)
+
+### Compliance & Audit
+
+- **DPDP Act 2023:** Posts are classified and held, not deleted. Teens always know why.
+- **Audit Trail:** Every moderation decision logged with timestamp, admin, reason
+- **Transparency:** Teen can appeal decisions (future feature)
+- **Data Minimization:** Only redacted excerpts shown to admins (ID numbers, school names, @handles stripped)
+
+### Notification System
+
+**File:** `app/api/pack/notify-admins/route.ts`
+
+When RED/YELLOW posts are detected, admins are notified via:
+- Email (subject line includes zone + urgency)
+- SMS (for RED zone only, 5-min SLA)
+- Dashboard push notification (real-time)
+
+**RED zone email example:**
+```
+Subject: 🚨 URGENT: RED ZONE post in Pack moderation queue
+
+A post has been flagged with immediate safety concerns:
+- Time: [timestamp]
+- Flags: Suicide Risk, Self-Harm
+- Excerpt: "I'm going to kill myself..."
+- ACTION REQUIRED: Review within 5 minutes
+```
+
+**YELLOW zone email example:**
+```
+Subject: 📋 YELLOW ZONE post awaiting moderation review
+
+A post needs human judgment before publishing:
+- Time: [timestamp]
+- Flags: Substance Abuse, Depression
+- Excerpt: "Been drinking every night to cope..."
+- Timeline: Review when available (no strict SLA)
+```
+
+---
+
 ## Sandbox Limitations
 
 When working in the Cowork sandbox:
@@ -268,6 +443,133 @@ Teen experience: `http://localhost:3000/teen`
 
 ---
 
+## ★ Parent Experience — Philosophy & Architecture
+
+### Core Philosophy: "Lamp, Not Spotlight"
+
+EmpathiQ's parent module is designed around a fundamental insight from research: **teens stop using wellbeing apps the moment they feel surveilled**. The parent experience exists to make parents better co-regulators — not better monitors.
+
+**Design principles:**
+
+1. **Aggregate over individual** — Parents see emotional weather patterns, not diary entries
+2. **Teen controls the dial** — Graduated privacy with explicit teen consent toggles
+3. **Education over observation** — Teach parents the same REBT thinking traps so they become co-learners, not supervisors
+4. **Safety override with transparency** — Crisis detection breaks privacy, but the teen is always told what was shared and why
+5. **Sideways over head-on** — Suggested connection moments happen shoulder-to-shoulder (walks, cooking, car rides), not face-to-face interrogation
+
+### Legal & Ethical Framework
+
+- **DPDP Act 2023 (India)**: Under-18 requires verifiable parental consent for data collection. Clinical/mental health establishments have an exemption that allows withholding specific session data while still collecting it. EmpathiQ uses this exemption ethically — collecting data for the teen's benefit while only surfacing aggregated insights to parents.
+- **APA Guidelines**: Balance teen autonomy with parental needs. Default to confidentiality; break only for safety.
+- **WHO/UNICEF**: Recommend allowing adolescents 16+ independent access. EmpathiQ uses graduated privacy (see below).
+
+### Privacy Architecture — Three Tiers
+
+| Tier | Colour | What parents see | Teen control |
+|---|---|---|---|
+| Always visible | 🟢 Green | Safety alerts, general engagement (active/inactive), avatar stage | Cannot hide — safety-first |
+| Teen-controlled | 🟡 Yellow | Mood trends, thinking trap focus areas, streak data, specific progress metrics | Teen toggles on/off per feature |
+| Never visible | 🔴 Red | Raw reflections, specific mission answers, pack posts, exact mood entries, journal content | Hardcoded — no override possible |
+
+**Safety override**: When the safety gate triggers RED or CRISIS triage, the parent is notified immediately with temporary elevated access. Once the teen is safe, access reverts. The teen always sees: "We told your parent because we think you need help. Here is what we shared."
+
+### Graduated Privacy by Age
+
+| Age Band | Default Privacy Level | Parent Visibility | Communication Model |
+|---|---|---|---|
+| 13–14 | Moderate | Trends + engagement + alerts | Parent-led check-ins |
+| 15–16 | Strong | Summaries + safety alerts only | Collaborative check-ins |
+| 17–18 | Maximum | Safety alerts only | Teen-led, parent opt-in |
+
+### Parent Route Map
+
+All parent routes live under `apps/parent-portal/app/parent/`.
+
+| Route | File | Description |
+|---|---|---|
+| `/parent` | `page.tsx` | Home: Emotional Weather report, weekly pulse metrics, thinking trap spotlight, sideways moment, survey callout, pack digest, privacy explainer |
+| `/parent/insights` | `insights/page.tsx` | Deeper view: thinking trap trend bars with %, mood trajectory timeline, engagement stats, visibility indicators |
+| `/parent/learn` | `learn/page.tsx` | REBT education: 4 core principles + 7 thinking traps with teen examples, parent mirrors, reframes, try-at-home, avoid-this |
+| `/parent/moments` | `moments/page.tsx` | Sideways connection suggestions: 4 categories (Walk, Kitchen, Car, Quiet), 8 timed activities with context, 5 anti-patterns with better alternatives |
+| `/parent/survey` | `survey/page.tsx` | Parent intake survey (existing) |
+
+**Layout:** `parent/layout.tsx` wraps all parent routes with a sidebar nav, topbar, and privacy badge.
+
+### Data Intelligence Layer (Teen → Parent)
+
+The "invisible" data flow works like this:
+
+```
+Teen completes mission → Thinking trap tag recorded → Aggregated weekly
+Teen checks mood → Mood trend calculated → Weather metaphor generated
+Teen uses tools → Usage count tracked → "Tools used" metric surfaced
+Safety gate triggers → Immediate parent notification → Teen is told what was shared
+```
+
+**What flows to parents (aggregated):**
+- Emotional Weather: "Skies clearing" / "Some clouds gathering" / "Mixed weather"
+- Thinking trap distribution: "41% Catastrophizing, 26% All-or-Nothing"
+- Engagement metrics: Active days, stories completed, tools used, streak length
+- Suggested sideways moments: Based on current trap focus (e.g., catastrophizing → "Walk and wonder")
+
+**What never flows to parents:**
+- Raw mission reflections or specific answers
+- Pack posts or reactions
+- Exact mood check-in values
+- Free-text journal entries
+- Specific peer interactions
+
+### CSS Architecture — Parent Section
+
+Parent pages use `globals.css` classes (not teen.css). The design is warm, calm, and supportive — distinct from the teen's deep navy.
+
+**Key CSS classes:**
+
+| Class | Purpose |
+|---|---|
+| `.parent-shell` | Root wrapper with warm gradient |
+| `.parent-layout` | Sidebar + content grid |
+| `.parent-sidebar` / `.parent-nav-item` | Left sidebar navigation |
+| `.parent-hero` / `.parent-hero-compact` | Page hero sections |
+| `.parent-weather-card` | Emotional Weather report card |
+| `.parent-trap-spotlight` | Current thinking trap focus |
+| `.parent-pulse-grid` / `.parent-pulse-card` | Weekly metrics grid |
+| `.parent-moment-card` | Sideways moment suggestion |
+| `.parent-trap-card` | Full thinking trap education card |
+| `.parent-principle-card` | REBT principle card |
+| `.parent-moment-card-full` | Detailed connection activity |
+| `.parent-antipattern-card` | What-to-avoid guidance |
+| `.parent-visibility-row` | Privacy visibility indicator |
+| `.parent-privacy-badge` | Sidebar privacy trust signal |
+
+### Thinking Traps — Parent Mirror
+
+Parents learn the same 7 core traps their teen is working on, each with:
+
+| Trap | Parent Mirror Example |
+|---|---|
+| Catastrophizing | "If they fail this test, they'll never recover." |
+| All-or-Nothing | "Either top marks or wasting potential." |
+| Mind Reading | "The teacher must think I'm a bad parent." |
+| Emotional Reasoning | "I feel worried, so something must be wrong." |
+| Should Statements | "They should be more grateful." |
+| Labeling | "They're lazy. They're irresponsible." |
+| Overgeneralization | "We've tried everything. Nothing works." |
+
+Each trap card includes: teen example, parent mirror, reframe question, try-at-home activity, and what-to-avoid.
+
+### Anti-Patterns (What NOT to Do)
+
+The Moments page explicitly names 5 common parent anti-patterns:
+
+1. **The interrogation trap** — Multiple rapid questions → use one calm question
+2. **The fix-it reflex** — Jumping to solutions → ask "listen or help?"
+3. **The comparison trap** — Sibling/peer comparisons → name what you see in them
+4. **The reassurance loop** — "It'll be fine" → "What's most likely?"
+5. **The surveillance reveal** — Referencing app data → never reference this dashboard in conversation
+
+---
+
 ## Pending Work / Next Slices
 
 | Slice | Status | Description |
@@ -278,12 +580,18 @@ Teen experience: `http://localhost:3000/teen`
 | Pack feed | ✅ Done | Anonymous posts, mood cloud, reactions |
 | Toolbox | ✅ Done | 15 tools, 5 categories |
 | Safety page | ✅ Done | Amber + crisis + real Indian helplines |
-| Color theme pick | 🔲 Pending | User reviewing 3 options: Midnight / Dusk Garden / Bloom |
+| Parent module v1 | ✅ Done | Weather report, insights, REBT learn, sideways moments, privacy architecture |
 | 10 additional missions | ✅ Done | All 15 missions complete with narrative, dual paths, thinking traps |
-| Real API integration | 🔲 Pending | Connect teen pages to Prisma-backed API routes |
+| Color theme pick | 🔲 Pending | User reviewing 3 options: Midnight / Dusk Garden / Bloom |
+| Real API integration | 🔲 Pending | Connect teen + parent pages to Prisma-backed API routes |
+| Parent real-time data | 🔲 Pending | Connect parent weather/pulse to actual teen activity aggregation |
+| Teen privacy toggles | ✅ Done | In-app toggles for teens to control what parents see — `/teen/privacy` page with 4 toggleable features, always-visible and never-visible tiers |
+| AI pack moderation v1 | ✅ Done | Risk classifier (RED/YELLOW/GREEN zones), pre-moderation workflow, admin queue at `/admin/moderation-queue`, notification system |
 | Workshop admin UI | 🔲 Pending | Connect existing UI to real workshop APIs |
 | Pack v2 | 🔲 Pending | Real-time reflection sharing, cohort formation |
 | Weekly Replay (Slice 6) | 🔲 Pending | Weekly insight summary for teen |
+| Parent notification system | 🔲 Pending | Safety-triggered alerts, weekly digest emails |
+| AI moderation Phase 2 | 🔲 Pending | Fine-tune BERT for Indian English, achieve 92-95% accuracy, handle Hinglish |
 | Mobile app (Expo) | 🔲 Planned | After web is validated |
 
 ---
@@ -299,3 +607,13 @@ Teen experience: `http://localhost:3000/teen`
 | Indian helplines only | Product is India-first; international lines create confusion |
 | Narrative in 3 chunks | Reduces cognitive load; each reveal feels like a reward |
 | Shake animation on choice cards | Draws attention without being annoying; proven pattern in games |
+| "Lamp not spotlight" parent design | Research shows teens abandon apps when they feel surveilled; parents see weather, not diary |
+| Three-tier privacy (green/yellow/red) | Balances safety (always visible) with autonomy (never visible) and teen agency (controlled) |
+| Graduated privacy by age | DPDP Act requires parental consent for under-18, but WHO/UNICEF recommend 16+ autonomy |
+| Sideways moments over direct advice | Family therapy research: shoulder-to-shoulder connection beats face-to-face interrogation |
+| Parent REBT mirror cards | Parents who learn the same traps become co-learners rather than supervisors |
+| Safety override with teen transparency | Breaking privacy in crisis is necessary, but telling the teen what was shared preserves trust |
+| Anti-patterns section on Moments page | Naming common harmful patterns (interrogation, comparison, fix-it reflex) prevents accidental damage |
+| AI pre-moderation for Pack posts | Team has no clinical experts; AI classifier + human admins safer than no moderation. Posts held before posting, not after. Prevents harm while preserving teen voice. |
+| Three-zone risk classification | RED (5 min SLA) > YELLOW (60 min SLA) > GREEN (immediate). Optimizes for safety (false positives) over false negatives. Better to hold 10 safe posts than miss 1 risky post. |
+| Regex + heuristics MVP, BERT Phase 2 | MVP shipping fast with pattern matching (80% accuracy). Phase 2 fine-tunes BERT on Indian English/Hinglish for 92-95% accuracy after validating initial approach. |

@@ -7,7 +7,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@empathiq/database";
+import { getMissionBySlug } from "@empathiq/shared/missions/missionFactory";
 import { getAuthContext } from "../../../../_lib/teenAuth";
+import { ensureMissionCatalogSynced } from "../../../../_lib/missionCatalogStore";
 
 export async function GET(
   request: NextRequest,
@@ -17,6 +19,9 @@ export async function GET(
     // Validate auth
     const authHeader = request.headers.get("Authorization");
     const { teenId } = getAuthContext(authHeader);
+    void teenId;
+
+    await ensureMissionCatalogSynced();
 
     const { slug } = await params;
 
@@ -68,15 +73,18 @@ export async function GET(
       );
     }
 
+    const sharedMission = getMissionBySlug(mission.slug);
+
     // Transform to match mobile app format
     const formattedMission = {
       id: mission.id,
       slug: mission.slug,
       title: mission.title,
-      chapterLabel: `Mission: ${mission.slug}`,
+      chapterLabel: sharedMission?.chapterLabel || `Mission: ${mission.slug}`,
       prompt: mission.narrativeIntro,
       atmosphere: mission.sensoryPrompt,
       estimatedMinutes: mission.estimatedMinutes,
+      theme: sharedMission?.theme || null,
       decisions: mission.decisionOptions.map((option) => ({
         id: option.id,
         label: option.label,

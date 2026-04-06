@@ -4,10 +4,10 @@ import type { UpdateModerationDecisionInput } from "@empathiq/shared/contracts/p
 import {
   getModerationQueue,
   updateModerationDecision,
-} from "../../../_data/packData";
+} from "../../../_lib/packStore";
 
 export async function GET() {
-  return NextResponse.json(getModerationQueue());
+  return NextResponse.json(await getModerationQueue());
 }
 
 export async function PATCH(request: Request) {
@@ -20,5 +20,5 @@ export async function PATCH(request: Request) {
     );
   }
 
-  return NextResponse.json(updateModerationDecision(body));
+  return NextResponse.json(await updateModerationDecision(body));
 }

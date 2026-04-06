@@ -198,6 +198,20 @@ export default function TeenHomePage() {
         🌊 {packCount} teens in your pack checked in today
       </div>
 
+      <div className="teen-card teen-card-glow-purple teen-fade-in" style={{ marginBottom: 16 }}>
+        <div className="teen-flex-between" style={{ gap: 12, alignItems: "center" }}>
+          <div>
+            <p className="section-heading" style={{ marginBottom: 6 }}>Voice survey</p>
+            <p className="teen-text-muted teen-text-small">
+              Tell us what is really causing the pressure at home and school. It saves inline and does not redirect.
+            </p>
+          </div>
+          <button className="teen-btn teen-btn-secondary" onClick={() => router.push("/teen/survey")}>
+            Open survey
+          </button>
+        </div>
+      </div>
+
       {/* === TODAY'S STORY (pulsing CTA) === */}
       <p className="section-heading">Today&apos;s Story</p>
 

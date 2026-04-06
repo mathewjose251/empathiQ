@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import type { NavItem } from "@empathiq/shared/contracts/webPortal";
+import { PreviewLogoutButton } from "./PreviewLogoutButton";
 
 interface AppShellProps {
   eyebrow: string;
@@ -26,6 +27,7 @@ export function AppShell({
               {item.label}
             </Link>
           ))}
+          <PreviewLogoutButton />
         </nav>
       </section>
 

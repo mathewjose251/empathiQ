@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getParentPackDigest } from "../../../_data/packData";
+import { getParentPackDigest } from "../../../_lib/packStore";
 
 export async function GET() {
-  return NextResponse.json(getParentPackDigest());
+  return NextResponse.json(await getParentPackDigest());
 }

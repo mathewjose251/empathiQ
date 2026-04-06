@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@empathiq/database";
 import { getAuthContext } from "../../../../../_lib/teenAuth";
+import { ensureMissionCatalogSynced } from "../../../../../_lib/missionCatalogStore";
 
 export async function POST(
   request: NextRequest,
@@ -23,6 +24,8 @@ export async function POST(
     // Validate auth
     const authHeader = request.headers.get("Authorization");
     const { teenId } = getAuthContext(authHeader);
+
+    await ensureMissionCatalogSynced();
 
     const { slug } = await params;
 

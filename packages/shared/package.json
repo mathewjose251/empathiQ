@@ -5,8 +5,10 @@
   "exports": {
     "./contracts/familyCare": "./src/contracts/familyCare.ts",
     "./contracts/pack": "./src/contracts/pack.ts",
+    "./contracts/surveys": "./src/contracts/surveys.ts",
     "./contracts/webPortal": "./src/contracts/webPortal.ts",
     "./contracts/workshops": "./src/contracts/workshops.ts",
+    "./missions/missionFactory": "./src/missions/missionFactory.ts",
     "./pack/assignToPack": "./src/pack/assignToPack.ts"
   }
 }

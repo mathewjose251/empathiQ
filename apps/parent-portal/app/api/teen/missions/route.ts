@@ -8,12 +8,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@empathiq/database";
 import { getAuthContext } from "../../../_lib/teenAuth";
+import { ensureMissionCatalogSynced } from "../../../_lib/missionCatalogStore";
 
 export async function GET(request: NextRequest) {
   try {
     // Validate auth
     const authHeader = request.headers.get("Authorization");
     const { teenId } = getAuthContext(authHeader);
+    void teenId;
+
+    await ensureMissionCatalogSynced();
 
     // Fetch all published missions with their decision options
     const missions = await prisma.mission.findMany({

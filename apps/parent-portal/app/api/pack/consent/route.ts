@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import type { UpdatePackConsentInput } from "@empathiq/shared/contracts/pack";
-import { updatePackConsent } from "../../../_data/packData";
+import { updatePackConsent } from "../../../_lib/packStore";
 
 export async function PATCH(request: Request) {
   const body = (await request.json()) as UpdatePackConsentInput;
@@ -13,5 +13,5 @@ export async function PATCH(request: Request) {
     );
   }
 
-  return NextResponse.json(updatePackConsent(body));
+  return NextResponse.json(await updatePackConsent(body));
 }

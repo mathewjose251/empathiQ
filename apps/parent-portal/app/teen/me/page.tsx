@@ -188,6 +188,26 @@ export default function MePage() {
         </div>
       </div>
 
+      {/* Privacy Controls Link */}
+      <div
+        className="privacy-link-card"
+        onClick={() => router.push("/teen/privacy")}
+        style={{ marginBottom: "20px" }}
+      >
+        <span className="privacy-link-card-icon">🔒</span>
+        <div className="privacy-link-card-text">
+          <div className="privacy-link-card-title">Your Privacy Dial</div>
+          <div className="privacy-link-card-desc">
+            Control what your parent sees on their dashboard
+          </div>
+        </div>
+        <span className="privacy-link-card-count">
+          {Object.entries(teen.privacy).filter(
+            ([k, v]) => k !== "shareAvatarStage" && v === true
+          ).length} / 4 shared
+        </span>
+      </div>
+
       {/* Reset Journey button */}
       <button
         onClick={handleResetJourney}

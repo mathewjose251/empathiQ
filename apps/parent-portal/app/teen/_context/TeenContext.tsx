@@ -113,6 +113,57 @@ export interface Mission {
   xpReward: number;
 }
 
+// Privacy controls — what the teen shares with their parent
+export interface PrivacySettings {
+  shareMoodTrends: boolean;
+  shareThinkingTrapFocus: boolean;
+  shareStreakData: boolean;
+  shareProgressMetrics: boolean; // stories completed, tools used
+  shareAvatarStage: boolean; // always true — can't hide (safety-first)
+}
+
+export const DEFAULT_PRIVACY: PrivacySettings = {
+  shareMoodTrends: false,
+  shareThinkingTrapFocus: false,
+  shareStreakData: false,
+  shareProgressMetrics: false,
+  shareAvatarStage: true, // always visible — green tier
+};
+
+export type PrivacyKey = keyof Omit<PrivacySettings, "shareAvatarStage">;
+
+export const PRIVACY_FEATURES: {
+  key: PrivacyKey;
+  label: string;
+  description: string;
+  parentSees: string;
+}[] = [
+  {
+    key: "shareMoodTrends",
+    label: "Mood trends",
+    description: "Your parent sees a general mood direction (improving, steady, dipping) — never exact entries.",
+    parentSees: "\"Mood trend is gently improving this week\"",
+  },
+  {
+    key: "shareThinkingTrapFocus",
+    label: "Thinking trap focus",
+    description: "Your parent sees which thinking trap category you are working on — not what you wrote or chose.",
+    parentSees: "\"Currently working on Catastrophizing\"",
+  },
+  {
+    key: "shareStreakData",
+    label: "Streak & engagement",
+    description: "Your parent sees how many days you have been active and your current streak number.",
+    parentSees: "\"4-day streak, active 5 of 7 days\"",
+  },
+  {
+    key: "shareProgressMetrics",
+    label: "Progress numbers",
+    description: "Your parent sees how many stories and tools you have used — not which ones or what you said.",
+    parentSees: "\"8 stories completed, 12 tools used\"",
+  },
+];
+
 // The state shape
 export interface TeenState {
   // Auth
@@ -136,6 +187,9 @@ export interface TeenState {
 
   // Achievements
   achievements: string[];
+
+  // Privacy — what teen shares with parent
+  privacy: PrivacySettings;
 }
 
 interface TeenContextValue extends TeenState {
@@ -145,6 +199,7 @@ interface TeenContextValue extends TeenState {
   completeStory: (pathA: boolean) => void;
   incrementStreak: () => void;
   resetState: () => void;
+  togglePrivacy: (key: PrivacyKey) => void;
 }
 
 const defaultState: TeenState = {
@@ -160,6 +215,7 @@ const defaultState: TeenState = {
   storiesCompleted: 0,
   pathARate: 0,
   achievements: [],
+  privacy: { ...DEFAULT_PRIVACY },
 };
 
 const TeenContext = createContext<TeenContextValue | null>(null);
@@ -252,6 +308,16 @@ export function TeenProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const togglePrivacy = useCallback((key: PrivacyKey) => {
+    setState((prev) => ({
+      ...prev,
+      privacy: {
+        ...prev.privacy,
+        [key]: !prev.privacy[key],
+      },
+    }));
+  }, []);
+
   const resetState = useCallback(() => {
     setState(defaultState);
   }, []);
@@ -265,6 +331,7 @@ export function TeenProvider({ children }: { children: ReactNode }) {
         completeOnboarding,
         completeStory,
         incrementStreak,
+        togglePrivacy,
         resetState,
       }}
     >

@@ -92,6 +92,14 @@ export const insightTimeline: TimelineItem[] = [
 
 export const adminRoleCards: PortalCardData[] = [
   {
+    href: "/admin/surveys",
+    label: "Survey Signals",
+    title: "Read teen and parent intake patterns",
+    detail:
+      "Review survey submissions, conflict clusters, and whether responses are still in preview memory or already landing in PostgreSQL.",
+    accent: "mint",
+  },
+  {
     href: "/admin/workshops/family-dose",
     label: "Workshop Ops",
     title: "Parent + teen studio",
@@ -237,7 +245,15 @@ export function getOverviewPayload(): OverviewPagePayload {
 
 export function getAdminPayload(): AdminPagePayload {
   return {
-    navItems: [{ href: "/", label: "Overview" }, ...ecosystemNav],
+    navItems: [
+      { href: "/", label: "Overview" },
+      { href: "/admin", label: "Admin" },
+      { href: "/admin/surveys", label: "Surveys" },
+      { href: "/admin/workshops/family-dose", label: "Workshop" },
+      { href: "/parent", label: "Parent" },
+      { href: "/mentor", label: "Mentor" },
+      { href: "/teen-preview", label: "Teen" },
+    ],
     hero: {
       eyebrow: "Platform Control",
       title: "Admin access to every EmpathiQ surface.",

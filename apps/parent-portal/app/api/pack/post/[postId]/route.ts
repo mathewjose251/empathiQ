@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { deleteOwnPackPost } from "../../../../_data/packData";
+import { deleteOwnPackPost } from "../../../../_lib/packStore";
 
 export function generateStaticParams() {
   return [];
@@ -16,7 +16,7 @@ export async function DELETE(
     return NextResponse.json({ error: "postId is required." }, { status: 400 });
   }
 
-  const result = deleteOwnPackPost(postId);
+  const result = await deleteOwnPackPost(postId);
 
   return NextResponse.json(result, { status: result.success ? 200 : 400 });
 }

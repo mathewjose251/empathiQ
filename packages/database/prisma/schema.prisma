@@ -106,6 +106,18 @@ enum PackDigestAudience {
   MENTOR
 }
 
+enum SurveyAudience {
+  TEEN
+  TWEEN
+  PARENT
+}
+
+enum SurveyIdentityMode {
+  ANONYMOUS
+  GOOGLE_ID
+  EMPATHIQ_ACCOUNT
+}
+
 enum EscalationSeverity {
   MONITOR
   CLINICAL_REFERRAL
@@ -191,6 +203,7 @@ model TeenProfile {
   alumniConversationsAsAlumni AlumniConversation[] @relation("AlumniToCurrentTeen")
   sessionBriefs         SessionBrief[]
   mentorSessions        MentorSession[]
+  surveyResponses       FamilySurveyResponse[]
 }
 
 model ParentProfile {
@@ -201,6 +214,7 @@ model ParentProfile {
   updatedAt          DateTime           @updatedAt
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   teenLinks          ParentTeenLink[]   @relation("ParentToTeenLinks")
+  surveyResponses    FamilySurveyResponse[]
 }
 
 model MentorProfile {
@@ -466,6 +480,37 @@ model PackDigest {
 
   @@unique([packId, audience, weekStart])
   @@index([audience, weekStart])
+}
+
+model FamilySurveyResponse {
+  id                   String             @id @default(cuid())
+  audience             SurveyAudience
+  identityMode         SurveyIdentityMode @default(ANONYMOUS)
+  teenId               String?
+  parentId             String?
+  googleId             String?
+  respondentAlias      String?
+  ageBand              String?
+  teenAgeBand          String?
+  householdContext     String?
+  mainConcerns         String[]
+  pressurePoints       String[]
+  homeConflictThemes   String[]
+  schoolConflictThemes String[]
+  supportNeeds         String[]
+  feelingWords         String[]
+  openText             String?
+  followUpConsent      Boolean            @default(false)
+  answers              Json
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  teen                 TeenProfile?       @relation(fields: [teenId], references: [id], onDelete: SetNull)
+  parent               ParentProfile?     @relation(fields: [parentId], references: [id], onDelete: SetNull)
+
+  @@index([audience, createdAt])
+  @@index([identityMode, createdAt])
+  @@index([teenId, createdAt])
+  @@index([parentId, createdAt])
 }
 
 model InsightSnapshot {
