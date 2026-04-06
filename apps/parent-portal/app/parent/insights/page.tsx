@@ -1,14 +1,21 @@
 import Link from "next/link";
 
+import { getParentInsightsData } from "../_lib/portalApi";
+
 /*
  * ─── PARENT INSIGHTS ─────────────────────────────────────────
  *
  * Deeper view: thinking trap trends, mood trajectory, engagement
  * timeline, and privacy indicators. All data is aggregated — no
  * raw reflections are ever shown.
+ *
+ * Data fetched from /api/parent/insights with real Prisma queries.
  */
 
-const TRAP_TRENDS = [
+// TODO: Get teenId from auth context
+const DEMO_TEEN_ID = "demo-teen-001";
+
+const TRAP_TRENDS_FALLBACK = [
   {
     name: "Catastrophizing",
     percentage: 41,
@@ -51,14 +58,14 @@ const TRAP_TRENDS = [
   },
 ];
 
-const MOOD_TRAJECTORY = [
-  { week: "Week 1", label: "Mixed", emoji: "🌦️", note: "Onboarding period — adjusting to the format" },
-  { week: "Week 2", label: "Dipping", emoji: "🌧️", note: "Exam week spike in anxiety-related check-ins" },
-  { week: "Week 3", label: "Steady", emoji: "⛅", note: "Started using breathing tool regularly" },
-  { week: "Week 4", label: "Improving", emoji: "🌤️", note: "Streak building, more grounded path choices" },
+const MOOD_TRAJECTORY_FALLBACK = [
+  { week: "Week 1", label: "Mixed" as const, emoji: "🌦️", note: "Onboarding period — adjusting to the format" },
+  { week: "Week 2", label: "Dipping" as const, emoji: "🌧️", note: "Exam week spike in anxiety-related check-ins" },
+  { week: "Week 3", label: "Steady" as const, emoji: "⛅", note: "Started using breathing tool regularly" },
+  { week: "Week 4", label: "Improving" as const, emoji: "🌤️", note: "Streak building, more grounded path choices" },
 ];
 
-const ENGAGEMENT_STATS = [
+const ENGAGEMENT_STATS_FALLBACK = [
   { label: "Total missions completed", value: "8" },
   { label: "Grounded path choices", value: "62%" },
   { label: "Reflections shared to Pack", value: "5" },
@@ -67,7 +74,7 @@ const ENGAGEMENT_STATS = [
   { label: "Longest streak", value: "7 days" },
 ];
 
-const VISIBILITY_INDICATORS = [
+const VISIBILITY_INDICATORS_FALLBACK = [
   { feature: "Mood trend line", visible: true, teenLabel: "Shared by your teen" },
   { feature: "Thinking trap categories", visible: true, teenLabel: "Shared by your teen" },
   { feature: "Engagement frequency", visible: true, teenLabel: "Always visible" },
@@ -89,7 +96,26 @@ function trendColor(trend: "rising" | "steady" | "softening") {
   return "parent-trend-steady";
 }
 
-export default function ParentInsightsPage() {
+export default async function ParentInsightsPage() {
+  // Fetch real data from API
+  const insightsData = await getParentInsightsData(DEMO_TEEN_ID);
+
+  const TRAP_TRENDS = insightsData.trapTrends.length > 0
+    ? insightsData.trapTrends
+    : TRAP_TRENDS_FALLBACK;
+
+  const MOOD_TRAJECTORY = insightsData.moodTrajectory.length > 0
+    ? insightsData.moodTrajectory
+    : MOOD_TRAJECTORY_FALLBACK;
+
+  const ENGAGEMENT_STATS = insightsData.engagementStats.length > 0
+    ? insightsData.engagementStats
+    : ENGAGEMENT_STATS_FALLBACK;
+
+  const VISIBILITY_INDICATORS = insightsData.visibilityIndicators.length > 0
+    ? insightsData.visibilityIndicators
+    : VISIBILITY_INDICATORS_FALLBACK;
+
   return (
     <div className="parent-page">
       <section className="parent-hero parent-hero-compact">

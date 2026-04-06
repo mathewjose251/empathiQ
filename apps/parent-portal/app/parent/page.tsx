@@ -1,17 +1,24 @@
 import Link from "next/link";
 
 import { ParentPackDigestView } from "../_components/PackViews";
-import { getParentPackDigestData } from "../_lib/portalApi";
+import {
+  getParentPackDigestData,
+  getParentWeatherData,
+} from "../_lib/portalApi";
 
 /*
  * ─── DATA LAYER ──────────────────────────────────────────────
  *
- * In production these will come from API routes backed by the
- * Insight Engine. For now they are static mock data that shows
- * the shape and tone of a real parent experience.
+ * Real data fetched from /api/parent/weather and other routes.
+ * In production, teenId comes from user context (parent linked to teen).
+ * For preview/demo, using fallback mock data.
  */
 
-const WEATHER = {
+// TODO: Get teenId from auth context / parent user session
+const DEMO_TEEN_ID = "demo-teen-001";
+
+// Fallback data if real data fetch fails
+const WEATHER_FALLBACK = {
   moodTrend: "improving" as const,
   moodLabel: "Mood trend is gently improving over the last 7 days.",
   engagementDays: 5,
@@ -92,7 +99,14 @@ function trendClass(trend: "up" | "down" | "steady") {
 }
 
 export default async function ParentHomePage() {
-  const packDigest = await getParentPackDigestData();
+  // Fetch real data from API
+  const [weatherData, packDigest] = await Promise.all([
+    getParentWeatherData(DEMO_TEEN_ID),
+    getParentPackDigestData(),
+  ]);
+
+  // Use real data if available, otherwise fallback to mock
+  const WEATHER = weatherData || WEATHER_FALLBACK;
 
   return (
     <div className="parent-page">

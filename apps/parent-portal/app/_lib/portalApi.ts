@@ -14,6 +14,13 @@ import type {
   TeenPreviewPagePayload,
 } from "@empathiq/shared/contracts/webPortal";
 import type { WorkshopPagePayload } from "@empathiq/shared/contracts/workshops";
+import type {
+  EmotionalWeatherData,
+  ThinkingTrapTrend,
+  MoodTimelineItem,
+  EngagementStat,
+  VisibilityIndicator,
+} from "./parentDataEngine";
 import {
   getAdminPayload,
   getMentorPayload,
@@ -89,4 +96,36 @@ export function getAdminPackConsoleData(): Promise<AdminPackConsolePayload> {
 
 export function getDoseWorkshopPageData(): Promise<WorkshopPagePayload> {
   return loadJson("/api/admin/workshops/family-dose", getDoseWorkshopPayload);
+}
+
+// ─── Parent Data APIs ───
+
+export function getParentWeatherData(
+  teenId: string
+): Promise<EmotionalWeatherData | null> {
+  return loadJson(
+    `/api/parent/weather?teenId=${teenId}`,
+    () => null
+  );
+}
+
+export interface ParentInsightsData {
+  trapTrends: ThinkingTrapTrend[];
+  moodTrajectory: MoodTimelineItem[];
+  engagementStats: EngagementStat[];
+  visibilityIndicators: VisibilityIndicator[];
+}
+
+export function getParentInsightsData(
+  teenId: string
+): Promise<ParentInsightsData> {
+  return loadJson(
+    `/api/parent/insights?teenId=${teenId}`,
+    () => ({
+      trapTrends: [],
+      moodTrajectory: [],
+      engagementStats: [],
+      visibilityIndicators: [],
+    })
+  );
 }
