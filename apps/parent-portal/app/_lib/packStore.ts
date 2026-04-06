@@ -692,14 +692,16 @@ export async function createPackPost(
 
     // Notify admins of RED/YELLOW posts (background task in production)
     // In production, this would be a queue job (Bull, RabbitMQ, etc.)
-    void notifyAdminsOfFlaggedPost({
-      postId: reflection.id,
-      zone: riskClassification.zone,
-      safetyFlags: riskClassification.flagTypes,
-      redactedExcerpt: makeRedactedExcerpt(input.body),
-    }).catch((err) => {
-      console.error("Failed to notify admins:", err);
-    });
+    if (riskClassification.zone === "RED" || riskClassification.zone === "YELLOW") {
+      void notifyAdminsOfFlaggedPost({
+        postId: reflection.id,
+        zone: riskClassification.zone,
+        safetyFlags: riskClassification.flagTypes,
+        redactedExcerpt: makeRedactedExcerpt(input.body),
+      }).catch((err) => {
+        console.error("Failed to notify admins:", err);
+      });
+    }
   }
 
   const resultPost: PackFeedPost | undefined =

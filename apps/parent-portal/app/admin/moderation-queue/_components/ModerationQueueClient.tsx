@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ModerationQueueItem } from "@empathiq/shared/contracts/pack";
+import type { ModerationQueueItem, PackModerationStatus } from "@empathiq/shared/contracts/pack";
 
 const isStaticPreview = process.env.NEXT_PUBLIC_STATIC_PREVIEW === "true";
 
@@ -24,7 +24,7 @@ export function ModerationQueueClient({
 
     try {
       if (isStaticPreview) {
-        const nextStatus =
+        const nextStatus: PackModerationStatus =
           decision === "PUBLISH"
             ? "CLEARED"
             : decision === "KEEP_BLOCKED"

@@ -20,7 +20,7 @@ async function ModerationQueueContent() {
       eyebrow="Admin Hub"
       navItems={[
         { label: "Dashboard", href: "/admin" },
-        { label: "Moderation Queue", href: "/admin/moderation-queue", active: true },
+        { label: "Moderation Queue", href: "/admin/moderation-queue" },
       ]}
     >
       <HeroSection
@@ -271,7 +271,7 @@ export default function ModerationQueuePage() {
           eyebrow="Admin Hub"
           navItems={[
             { label: "Dashboard", href: "/admin" },
-            { label: "Moderation Queue", href: "/admin/moderation-queue", active: true },
+            { label: "Moderation Queue", href: "/admin/moderation-queue" },
           ]}
         >
           <div style={{ padding: "2rem", textAlign: "center" }}>
