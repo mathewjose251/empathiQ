@@ -52,6 +52,23 @@ export interface VisibilityIndicator {
   teenLabel: string;
 }
 
+export interface PackDigestItem {
+  id: string;
+  alias: string;
+  mood: string;
+  text: string;
+  reactions: { kind: string; count: number }[];
+  publishedAt: Date;
+}
+
+export interface TeenPrivacySettings {
+  shareMoodTrends: boolean;
+  shareThinkingTrapFocus: boolean;
+  shareStreakData: boolean;
+  shareProgressMetrics: boolean;
+  shareAvatarStage: boolean; // Always true - can't hide
+}
+
 // ─── HELPER: Calculate avatar stage from XP ───
 function getAvatarStageFromXP(totalXP: number): {
   stage: string;
@@ -277,78 +294,216 @@ export async function getMoodTrajectory(
   return trajectory;
 }
 
-// ─── MAIN: Get engagement stats ───
+// ─── MAIN: Get real engagement stats (Phase 2) ───
 export async function getEngagementStats(
   teenId: string
 ): Promise<EngagementStat[]> {
   const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [attempts, choices, tools] = await Promise.all([
+  // Fetch all engagement data in parallel
+  const [
+    completedAttempts,
+    allAttempts,
+    packReflections,
+    dailySignals,
+    challenges,
+  ] = await Promise.all([
+    // Missions completed this month
     prisma.missionAttempt.findMany({
       where: {
         teenId,
-        completedAt: { gte: lastMonth },
+        completedAt: { gte: lastMonth, lte: new Date() },
       },
     }),
-    prisma.missionChoice.findMany({
+    // All attempts to calculate streaks
+    prisma.missionAttempt.findMany({
+      where: { teenId },
+      orderBy: { completedAt: "desc" },
+      take: 30,
+    }),
+    // Pack reflections (published only)
+    prisma.packReflection.findMany({
       where: {
-        missionAttempt: {
-          teenId,
-          completedAt: { gte: lastMonth },
-        },
+        teenId,
+        status: "PUBLISHED",
+        publishedAt: { gte: lastMonth },
       },
     }),
-    // TODO: Add tool usage tracking when available
+    // Daily mood signals
+    prisma.dailySignal.findMany({
+      where: {
+        teenId,
+        submittedAt: { gte: lastMonth },
+      },
+    }),
+    // Challenges/tools used
+    prisma.challengeAttempt.findMany({
+      where: {
+        teenId,
+        submittedAt: { gte: lastMonth },
+      },
+    }),
   ]);
 
+  // Calculate metrics
   const activeDays = new Set(
-    attempts.map((a) => a.startedAt.toDateString())
+    completedAttempts.map((a) => a.startedAt.toDateString())
   ).size;
+
+  // Calculate streak (consecutive days with activity)
+  const streak = calculateStreak(allAttempts);
+
+  // Get average session time (placeholder - would need timestamps)
+  const avgSessionTime = "4.2 min";
 
   return [
     {
       label: "Total missions completed",
-      value: attempts.length.toString(),
+      value: completedAttempts.length.toString(),
     },
     {
-      label: "Grounded path choices",
-      value: `${Math.round((choices.length / Math.max(attempts.length, 1)) * 100)}%`,
+      label: "Active days this month",
+      value: `${activeDays} / 30`,
     },
     {
       label: "Reflections shared to Pack",
-      value: "5",
-    }, // TODO: Query actual pack reflections
+      value: packReflections.length.toString(),
+    },
     {
-      label: "Tools used this month",
-      value: "12",
-    }, // TODO: Query tool usage
+      label: "Tools/Challenges used",
+      value: challenges.length.toString(),
+    },
+    {
+      label: "Mood check-ins",
+      value: dailySignals.length.toString(),
+    },
+    {
+      label: "Current streak",
+      value: `${streak} days`,
+    },
     {
       label: "Average session length",
-      value: "4.2 min",
+      value: avgSessionTime,
     },
     {
       label: "Longest streak",
-      value: "7 days",
+      value: calculateLongestStreak(allAttempts),
     },
   ];
+}
+
+// ─── HELPER: Calculate current streak ───
+function calculateStreak(attempts: Array<{ completedAt: Date | null }>): number {
+  let streak = 0;
+  const completedDates = attempts
+    .filter((a) => a.completedAt !== null)
+    .map((a) => new Date(a.completedAt!).toDateString())
+    .filter((date, idx, arr) => arr.indexOf(date) === idx)
+    .sort()
+    .reverse();
+
+  if (completedDates.length === 0) return 0;
+
+  const today = new Date().toDateString();
+  let currentDate = new Date();
+
+  for (let i = 0; i < completedDates.length; i++) {
+    const compareDate = new Date(completedDates[i]).toDateString();
+    const expectedDate = new Date(currentDate).toDateString();
+
+    if (compareDate === expectedDate) {
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+// ─── HELPER: Calculate longest streak ───
+function calculateLongestStreak(
+  attempts: Array<{ completedAt: Date | null }>
+): string {
+  let maxStreak = 0;
+  let currentStreak = 0;
+  const completedDates = attempts
+    .filter((a) => a.completedAt !== null)
+    .map((a) => new Date(a.completedAt!))
+    .sort((a, b) => a.getTime() - b.getTime());
+
+  for (let i = 0; i < completedDates.length; i++) {
+    if (i === 0) {
+      currentStreak = 1;
+    } else {
+      const dayDiff =
+        (completedDates[i].getTime() - completedDates[i - 1].getTime()) /
+        (1000 * 60 * 60 * 24);
+      if (dayDiff <= 1) {
+        currentStreak++;
+      } else {
+        maxStreak = Math.max(maxStreak, currentStreak);
+        currentStreak = 1;
+      }
+    }
+  }
+
+  maxStreak = Math.max(maxStreak, currentStreak);
+  return `${maxStreak} days`;
+}
+
+// ─── MAIN: Get privacy settings for teen (Phase 2) ───
+export async function getPrivacySettings(
+  teenId: string
+): Promise<TeenPrivacySettings> {
+  const teen = await prisma.teenProfile.findUnique({
+    where: { id: teenId },
+  });
+
+  if (!teen) {
+    return {
+      shareMoodTrends: true,
+      shareThinkingTrapFocus: true,
+      shareStreakData: true,
+      shareProgressMetrics: true,
+      shareAvatarStage: true,
+    };
+  }
+
+  // TODO: TeenProfile needs privacy field added to schema
+  // For now, return default privacy settings
+  // In production: return (teen.privacy as TeenPrivacySettings) || defaultSettings
+  return {
+    shareMoodTrends: true,
+    shareThinkingTrapFocus: true,
+    shareStreakData: true,
+    shareProgressMetrics: true,
+    shareAvatarStage: true, // Always true - never hidden
+  };
 }
 
 // ─── MAIN: Get visibility indicators (based on privacy toggles) ───
 export async function getVisibilityIndicators(
   teenId: string
 ): Promise<VisibilityIndicator[]> {
-  // TODO: Fetch actual privacy settings from TeenProfile.privacy
-  // For now, return default configuration
+  const privacy = await getPrivacySettings(teenId);
+
   return [
     {
       feature: "Mood trend line",
-      visible: true,
-      teenLabel: "Shared by your teen",
+      visible: privacy.shareMoodTrends,
+      teenLabel: privacy.shareMoodTrends
+        ? "Shared by your teen"
+        : "Your teen chose to keep this private",
     },
     {
       feature: "Thinking trap categories",
-      visible: true,
-      teenLabel: "Shared by your teen",
+      visible: privacy.shareThinkingTrapFocus,
+      teenLabel: privacy.shareThinkingTrapFocus
+        ? "Shared by your teen"
+        : "Your teen chose to keep this private",
     },
     {
       feature: "Engagement frequency",
@@ -357,7 +512,7 @@ export async function getVisibilityIndicators(
     },
     {
       feature: "Avatar and XP progress",
-      visible: true,
+      visible: privacy.shareAvatarStage,
       teenLabel: "Always visible",
     },
     {
@@ -376,4 +531,67 @@ export async function getVisibilityIndicators(
       teenLabel: "Your teen chose to keep this private",
     },
   ];
+}
+
+// ─── MAIN: Get pack digest (real published reflections) ───
+export async function getPackDigestData(
+  teenId: string,
+  limit: number = 5
+): Promise<PackDigestItem[]> {
+  const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  const reflections = await prisma.packReflection.findMany({
+    where: {
+      teenId,
+      status: "PUBLISHED",
+      publishedAt: { gte: lastMonth },
+    },
+    include: {
+      reactions: true,
+      alias: true,
+    },
+    orderBy: { publishedAt: "desc" },
+    take: limit,
+  });
+
+  return reflections.map((reflection) => {
+    // Group reactions by kind
+    const reactionKinds = new Map<string, number>();
+    reflection.reactions.forEach((reaction) => {
+      reactionKinds.set(reaction.kind, (reactionKinds.get(reaction.kind) || 0) + 1);
+    });
+
+    return {
+      id: reflection.id,
+      alias: reflection.displayAlias || reflection.alias?.alias || "Anonymous",
+      mood: reflection.moodTag || "Reflective",
+      text: reflection.bodyPreview || "[Reflection text not available]",
+      reactions: Array.from(reactionKinds.entries()).map(([kind, count]) => ({
+        kind,
+        count,
+      })),
+      publishedAt: reflection.publishedAt || new Date(),
+    };
+  });
+}
+
+// ─── HELPER: Apply privacy filter to data ───
+export async function applyPrivacyFilter<T extends Record<string, any>>(
+  teenId: string,
+  data: T,
+  visibleFields: string[]
+): Promise<Partial<T>> {
+  const privacy = await getPrivacySettings(teenId);
+
+  const filtered: Partial<T> = {};
+
+  visibleFields.forEach((field) => {
+    // Always include if privacy setting allows
+    const privacyKey = `share${field.charAt(0).toUpperCase()}${field.slice(1)}` as keyof TeenPrivacySettings;
+    if (privacy[privacyKey] !== false || privacy[privacyKey] === undefined) {
+      filtered[field as keyof T] = data[field as keyof T];
+    }
+  });
+
+  return filtered;
 }

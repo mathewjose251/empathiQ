@@ -20,6 +20,7 @@ import type {
   MoodTimelineItem,
   EngagementStat,
   VisibilityIndicator,
+  PackDigestItem,
 } from "./parentDataEngine";
 import {
   getAdminPayload,
@@ -128,4 +129,10 @@ export function getParentInsightsData(
       visibilityIndicators: [],
     })
   );
+}
+
+export function getParentTeenPackDigest(
+  teenId: string
+): Promise<PackDigestItem[]> {
+  return loadJson(`/api/parent/pack-digest?teenId=${teenId}`, () => []);
 }

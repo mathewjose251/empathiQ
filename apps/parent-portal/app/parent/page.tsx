@@ -4,6 +4,7 @@ import { ParentPackDigestView } from "../_components/PackViews";
 import {
   getParentPackDigestData,
   getParentWeatherData,
+  getParentTeenPackDigest,
 } from "../_lib/portalApi";
 
 /*
@@ -99,10 +100,11 @@ function trendClass(trend: "up" | "down" | "steady") {
 }
 
 export default async function ParentHomePage() {
-  // Fetch real data from API
-  const [weatherData, packDigest] = await Promise.all([
+  // Fetch real data from APIs
+  const [weatherData, packDigest, teenPackDigest] = await Promise.all([
     getParentWeatherData(DEMO_TEEN_ID),
     getParentPackDigestData(),
+    getParentTeenPackDigest(DEMO_TEEN_ID), // Real pack reflections
   ]);
 
   // Use real data if available, otherwise fallback to mock
