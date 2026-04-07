@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { getParentInsightsData } from "../_lib/portalApi";
+import { getParentInsightsData } from "../../_lib/portalApi";
+import type { ThinkingTrapTrend, MoodTimelineItem, EngagementStat, VisibilityIndicator } from "../../_lib/parentDataEngine";
 
 /*
  * ─── PARENT INSIGHTS ─────────────────────────────────────────
@@ -15,7 +16,7 @@ import { getParentInsightsData } from "../_lib/portalApi";
 // TODO: Get teenId from auth context
 const DEMO_TEEN_ID = "demo-teen-001";
 
-const TRAP_TRENDS_FALLBACK = [
+const TRAP_TRENDS_FALLBACK: ThinkingTrapTrend[] = [
   {
     name: "Catastrophizing",
     percentage: 41,
@@ -58,14 +59,14 @@ const TRAP_TRENDS_FALLBACK = [
   },
 ];
 
-const MOOD_TRAJECTORY_FALLBACK = [
+const MOOD_TRAJECTORY_FALLBACK: MoodTimelineItem[] = [
   { week: "Week 1", label: "Mixed" as const, emoji: "🌦️", note: "Onboarding period — adjusting to the format" },
   { week: "Week 2", label: "Dipping" as const, emoji: "🌧️", note: "Exam week spike in anxiety-related check-ins" },
   { week: "Week 3", label: "Steady" as const, emoji: "⛅", note: "Started using breathing tool regularly" },
   { week: "Week 4", label: "Improving" as const, emoji: "🌤️", note: "Streak building, more grounded path choices" },
 ];
 
-const ENGAGEMENT_STATS_FALLBACK = [
+const ENGAGEMENT_STATS_FALLBACK: EngagementStat[] = [
   { label: "Total missions completed", value: "8" },
   { label: "Grounded path choices", value: "62%" },
   { label: "Reflections shared to Pack", value: "5" },
@@ -74,7 +75,7 @@ const ENGAGEMENT_STATS_FALLBACK = [
   { label: "Longest streak", value: "7 days" },
 ];
 
-const VISIBILITY_INDICATORS_FALLBACK = [
+const VISIBILITY_INDICATORS_FALLBACK: VisibilityIndicator[] = [
   { feature: "Mood trend line", visible: true, teenLabel: "Shared by your teen" },
   { feature: "Thinking trap categories", visible: true, teenLabel: "Shared by your teen" },
   { feature: "Engagement frequency", visible: true, teenLabel: "Always visible" },
