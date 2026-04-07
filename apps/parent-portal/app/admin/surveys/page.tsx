@@ -3,58 +3,37 @@ import { AdminSurveyResults } from "../../_components/AdminSurveyResults";
 import { HeroSection } from "../../_components/HeroSection";
 import { MetricGrid } from "../../_components/Cards";
 import { getAdminPayload } from "../../_data/portalData";
-import { getSurveyDashboardData } from "../../_lib/surveyStore";
+import { getSurveyDashboardData, getSurveyResponsePage } from "../../_lib/surveyStore";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSurveyPage() {
-  const [adminData, dashboard] = await Promise.all([
+  const [adminData, dashboard, initialPage] = await Promise.all([
     getAdminPayload(),
     getSurveyDashboardData(),
+    getSurveyResponsePage(0, 25),
   ]);
 
   return (
     <AppShell eyebrow="Survey Admin" navItems={adminData.navItems}>
       <HeroSection
-        eyebrow="Survey Inbox"
-        title="Read what tweens, teens, and parents are actually saying."
-        lede="This page gives you the current survey flow in one place: how many responses came in, where the conflicts cluster, and whether the data is still in preview memory or already persisting in PostgreSQL."
+        eyebrow="Survey Insights"
+        title="What families are telling us"
+        lede="Aggregated signals from teen, tween, and parent surveys. Each bar shows what percentage of all respondents selected that option. Use the table below to drill into individual responses."
       >
         <MetricGrid
           metrics={[
-            {
-              label: "Total responses",
-              value: `${dashboard.totalResponses}`,
-              detail: "Combined teen and parent submissions",
-            },
-            {
-              label: "Tween responses",
-              value: `${dashboard.tweenResponses}`,
-              detail: "Gentler age-fit check-ins for 10 to 12",
-            },
-            {
-              label: "Teen responses",
-              value: `${dashboard.teenResponses}`,
-              detail: "Direct signals from the teen intake form",
-            },
-            {
-              label: "Parent responses",
-              value: `${dashboard.parentResponses}`,
-              detail: "Family-side context and conflict patterns",
-            },
-            {
-              label: "Storage mode",
-              value: dashboard.storageMode,
-              detail:
-                dashboard.storageMode === "DATABASE"
-                  ? "Responses survive redeploys and restarts"
-                  : "Responses reset when the server restarts",
-            },
+            { label: "Total responses", value: dashboard.totalResponses.toLocaleString(), detail: "All audiences combined" },
+            { label: "Teen", value: dashboard.teenResponses.toLocaleString(), detail: "Direct signals from teens" },
+            { label: "Tween", value: dashboard.tweenResponses.toLocaleString(), detail: "Ages 10–13 check-ins" },
+            { label: "Parent", value: dashboard.parentResponses.toLocaleString(), detail: "Family-side context" },
+            { label: "Follow-up consent", value: dashboard.followUpConsentCount.toLocaleString(), detail: `${dashboard.totalResponses > 0 ? Math.round((dashboard.followUpConsentCount / dashboard.totalResponses) * 100) : 0}% of respondents` },
+            { label: "Storage", value: dashboard.storageMode, detail: dashboard.storageMode === "DATABASE" ? "Persisting to PostgreSQL" : "Preview memory — restarts clear data" },
           ]}
         />
       </HeroSection>
 
-      <AdminSurveyResults dashboard={dashboard} />
+      <AdminSurveyResults dashboard={dashboard} initialPage={initialPage} />
     </AppShell>
   );
 }

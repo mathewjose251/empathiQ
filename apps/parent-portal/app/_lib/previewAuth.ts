@@ -16,9 +16,9 @@ const PUBLIC_EXACT_PATHS = new Set([
 const PUBLIC_PREFIXES = [
   "/api/auth/login",
   "/api/auth/logout",
-  "/api/surveys/teen",
-  "/api/surveys/tween",
-  "/api/surveys/parent",
+  "/api/survey/teen",
+  "/api/survey/tween",
+  "/api/survey/parent",
   "/_next",
 ];
 
