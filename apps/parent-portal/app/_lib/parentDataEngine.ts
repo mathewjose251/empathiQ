@@ -11,6 +11,8 @@ import { prisma } from "@empathiq/database";
  * - Mood trajectory (weekly)
  * - Engagement metrics (active days, stories, tools, streak)
  * - Pack digest (published reflections)
+ * - Privacy filtering (respects teen's toggle settings)
+ * - Parent-teen linking (Phase 3)
  *
  * All data respects teen's privacy toggles.
  */
@@ -594,4 +596,127 @@ export async function applyPrivacyFilter<T extends Record<string, any>>(
   });
 
   return filtered;
+}
+
+// ─── MAIN: Get parent's connected teens (Phase 3) ───
+export async function getParentConnectedTeens(
+  parentId: string
+): Promise<Array<{ id: string; name: string; avatar: string }>> {
+  const parentLinks = await prisma.parentTeenLink.findMany({
+    where: { parentId },
+    include: {
+      teen: {
+        select: {
+          id: true,
+          preferredName: true,
+        },
+      },
+    },
+  });
+
+  return parentLinks.map((link) => ({
+    id: link.teen.id,
+    name: link.teen.preferredName,
+    avatar: "🌱", // TODO: Calculate from XP / avatar stage
+  }));
+}
+
+// ─── MAIN: Get primary teen for parent ───
+export async function getParentPrimaryTeen(
+  parentId: string
+): Promise<{ id: string; name: string } | null> {
+  const primaryLink = await prisma.parentTeenLink.findFirst({
+    where: {
+      parentId,
+      isPrimaryGuardian: true,
+    },
+    include: {
+      teen: {
+        select: {
+          id: true,
+          preferredName: true,
+        },
+      },
+    },
+  });
+
+  if (!primaryLink) {
+    // Fallback: get first teen if no primary designated
+    const firstLink = await prisma.parentTeenLink.findFirst({
+      where: { parentId },
+      include: {
+        teen: {
+          select: {
+            id: true,
+            preferredName: true,
+          },
+        },
+      },
+    });
+
+    if (!firstLink) return null;
+
+    return {
+      id: firstLink.teen.id,
+      name: firstLink.teen.preferredName,
+    };
+  }
+
+  return {
+    id: primaryLink.teen.id,
+    name: primaryLink.teen.preferredName,
+  };
+}
+
+// ─── HELPER: Get all data for a parent's primary teen ───
+export interface ParentDashboardData {
+  weather: EmotionalWeatherData | null;
+  trapTrends: ThinkingTrapTrend[];
+  moodTrajectory: MoodTimelineItem[];
+  engagementStats: EngagementStat[];
+  visibilityIndicators: VisibilityIndicator[];
+  packDigest: PackDigestItem[];
+}
+
+export async function getAllParentTeenData(
+  parentId: string
+): Promise<{ teen: { id: string; name: string } | null; data: ParentDashboardData }> {
+  const teen = await getParentPrimaryTeen(parentId);
+
+  if (!teen) {
+    return {
+      teen: null,
+      data: {
+        weather: null,
+        trapTrends: [],
+        moodTrajectory: [],
+        engagementStats: [],
+        visibilityIndicators: [],
+        packDigest: [],
+      },
+    };
+  }
+
+  // Fetch all data in parallel
+  const [weather, trapTrends, moodTrajectory, engagementStats, visibilityIndicators, packDigest] =
+    await Promise.all([
+      calculateEmotionalWeather(teen.id),
+      getThinkingTrapTrends(teen.id),
+      getMoodTrajectory(teen.id),
+      getEngagementStats(teen.id),
+      getVisibilityIndicators(teen.id),
+      getPackDigestData(teen.id),
+    ]);
+
+  return {
+    teen,
+    data: {
+      weather,
+      trapTrends,
+      moodTrajectory,
+      engagementStats,
+      visibilityIndicators,
+      packDigest,
+    },
+  };
 }

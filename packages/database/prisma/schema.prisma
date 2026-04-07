@@ -187,6 +187,7 @@ model TeenProfile {
   birthDate             DateTime
   onboardingStage       String?
   packId                String?
+  privacy               Json               @default("{\"shareMoodTrends\": true, \"shareThinkingTrapFocus\": true, \"shareStreakData\": true, \"shareProgressMetrics\": true, \"shareAvatarStage\": true}")
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
   user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)

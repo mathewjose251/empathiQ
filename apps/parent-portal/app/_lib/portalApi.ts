@@ -21,6 +21,12 @@ import type {
   EngagementStat,
   VisibilityIndicator,
   PackDigestItem,
+  ParentDashboardData,
+} from "./parentDataEngine";
+import {
+  getParentConnectedTeens,
+  getParentPrimaryTeen,
+  getAllParentTeenData,
 } from "./parentDataEngine";
 import {
   getAdminPayload,
@@ -135,4 +141,24 @@ export function getParentTeenPackDigest(
   teenId: string
 ): Promise<PackDigestItem[]> {
   return loadJson(`/api/parent/pack-digest?teenId=${teenId}`, () => []);
+}
+
+// ─── Parent-Teen Linking (Phase 3) ───
+
+export async function fetchParentConnectedTeens(
+  parentId: string
+): Promise<Array<{ id: string; name: string; avatar: string }>> {
+  return getParentConnectedTeens(parentId);
+}
+
+export async function fetchParentPrimaryTeen(
+  parentId: string
+): Promise<{ id: string; name: string } | null> {
+  return getParentPrimaryTeen(parentId);
+}
+
+export async function fetchAllParentTeenData(
+  parentId: string
+): Promise<{ teen: { id: string; name: string } | null; data: ParentDashboardData }> {
+  return getAllParentTeenData(parentId);
 }

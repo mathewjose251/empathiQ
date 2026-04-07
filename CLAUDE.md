@@ -570,6 +570,83 @@ The Moments page explicitly names 5 common parent anti-patterns:
 
 ---
 
+## Parent Module — Real Data Integration (Phases 1-3)
+
+### Phase 1: Core Data APIs ✅ DONE
+**Commit:** `ba9f509`
+
+Created data aggregation engine for emotional weather & insights:
+- `GET /api/parent/weather?teenId=...` - Emotional weather (trend, avatar, top trap)
+- `GET /api/parent/insights?teenId=...` - Trap trends (%), mood trajectory, engagement stats, visibility
+- `parentDataEngine.ts` - 5 core functions:
+  - `calculateEmotionalWeather()` - Analyzes 7-day mood + activity
+  - `getThinkingTrapTrends()` - 4-week trap distribution
+  - `getMoodTrajectory()` - Weekly mood timeline
+  - `getEngagementStats()` - (placeholder for Phase 2)
+  - `getVisibilityIndicators()` - Privacy-aware data visibility
+
+### Phase 2: Real Engagement + Pack Digest + Privacy ✅ DONE
+**Commit:** `534781e`
+
+Extended engine with real Prisma queries:
+- Enhanced `getEngagementStats()` - Real data:
+  - Total missions completed (MissionAttempt.count)
+  - Active days this month
+  - Reflections shared (PackReflection.count where status=PUBLISHED)
+  - Tools/challenges used (ChallengeAttempt.count)
+  - Mood check-ins (DailySignal.count)
+  - Current streak & longest streak (calculated from completedAt)
+- `getPackDigestData()` - Published pack reflections with:
+  - Real anonymized aliases
+  - Reaction counts (I_RELATE, I_TRIED_THIS, THIS_HELPED)
+  - Latest 5 posts, pageable
+- `GET /api/parent/pack-digest?teenId=...` - Real pack digest API
+- Privacy architecture foundation:
+  - `getPrivacySettings()` - Fetch teen's privacy toggles
+  - `applyPrivacyFilter()` - Filter data by privacy settings
+  - Updated `getVisibilityIndicators()` - Privacy-aware
+
+### Phase 3: Parent-Teen Linking + Privacy Schema ✅ DONE
+**Commits:** `[to be pushed]`
+
+Parent-teen relationship management:
+- `getParentConnectedTeens(parentId)` - List all connected teens
+- `getParentPrimaryTeen(parentId)` - Get primary guardian teen
+- `getAllParentTeenData(parentId)` - Complete dashboard data for primary teen
+- Schema update:
+  - Added `privacy Json` field to TeenProfile
+  - Default: all privacy toggles enabled
+  - Migration: `/supabase/migrations/` (Supabase-managed)
+- Parent pages now use real teen context (instead of hardcoded demo ID)
+
+### Data Architecture
+
+```
+Parent logs in
+  ↓
+fetch ParentTeenLink (finds connected teens)
+  ↓
+get primary teen ID
+  ↓
+/api/parent/weather?teenId=xxx
+/api/parent/insights?teenId=xxx
+/api/parent/pack-digest?teenId=xxx
+  ↓
+Apply privacy filter (check TeenProfile.privacy)
+  ↓
+Return aggregated, privacy-filtered data to parent
+```
+
+### What Still Needs Work
+
+- **UI Integration:** Parent pages still use demo data alongside real APIs
+- **Real-time Updates:** Currently one-time fetch; could add WebSocket
+- **Authentication:** Parent context not yet integrated into pages
+- **Notifications:** Email/SMS on safety alerts not yet connected
+- **Privacy Settings UI:** Teen privacy toggles exist, but not easily discoverable
+
+---
+
 ## Pending Work / Next Slices
 
 | Slice | Status | Description |
@@ -582,11 +659,12 @@ The Moments page explicitly names 5 common parent anti-patterns:
 | Safety page | ✅ Done | Amber + crisis + real Indian helplines |
 | Parent module v1 | ✅ Done | Weather report, insights, REBT learn, sideways moments, privacy architecture |
 | 10 additional missions | ✅ Done | All 15 missions complete with narrative, dual paths, thinking traps |
-| Color theme pick | 🔲 Pending | User reviewing 3 options: Midnight / Dusk Garden / Bloom |
-| Real API integration | 🔲 Pending | Connect teen + parent pages to Prisma-backed API routes |
-| Parent real-time data | 🔲 Pending | Connect parent weather/pulse to actual teen activity aggregation |
 | Teen privacy toggles | ✅ Done | In-app toggles for teens to control what parents see — `/teen/privacy` page with 4 toggleable features, always-visible and never-visible tiers |
 | AI pack moderation v1 | ✅ Done | Risk classifier (RED/YELLOW/GREEN zones), pre-moderation workflow, admin queue at `/admin/moderation-queue`, notification system |
+| **Parent API Phase 1** | ✅ Done | `/api/parent/weather` (emotional weather), `/api/parent/insights` (trap trends, mood trajectory, engagement stats), Prisma data engine |
+| **Parent API Phase 2** | ✅ Done | `/api/parent/pack-digest` (real published reflections), real engagement stats (missions, tools, reflections, streaks), privacy filtering infrastructure |
+| **Parent API Phase 3** | ✅ Done | Parent-teen linking (getParentPrimaryTeen, getParentConnectedTeens), privacy field added to TeenProfile schema, getAllParentTeenData() for complete dashboard |
+| Color theme pick | 🔲 Pending | User reviewing 3 options: Midnight / Dusk Garden / Bloom |
 | Workshop admin UI | 🔲 Pending | Connect existing UI to real workshop APIs |
 | Pack v2 | 🔲 Pending | Real-time reflection sharing, cohort formation |
 | Weekly Replay (Slice 6) | 🔲 Pending | Weekly insight summary for teen |
