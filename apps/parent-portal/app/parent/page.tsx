@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 
 import { ParentPackDigestView } from "../_components/PackViews";
@@ -6,6 +8,7 @@ import {
   getParentWeatherData,
   getParentTeenPackDigest,
 } from "../_lib/portalApi";
+import { resolveParentTeenId } from "../_lib/sessionContext";
 
 /*
  * ─── DATA LAYER ──────────────────────────────────────────────
@@ -14,9 +17,6 @@ import {
  * In production, teenId comes from user context (parent linked to teen).
  * For preview/demo, using fallback mock data.
  */
-
-// TODO: Get teenId from auth context / parent user session
-const DEMO_TEEN_ID = "demo-teen-001";
 
 // Fallback data if real data fetch fails
 const WEATHER_FALLBACK = {
@@ -100,11 +100,12 @@ function trendClass(trend: "up" | "down" | "steady") {
 }
 
 export default async function ParentHomePage() {
-  // Fetch real data from APIs
+  const teenId = await resolveParentTeenId();
+
   const [weatherData, packDigest, teenPackDigest] = await Promise.all([
-    getParentWeatherData(DEMO_TEEN_ID),
+    teenId ? getParentWeatherData(teenId) : Promise.resolve(null),
     getParentPackDigestData(),
-    getParentTeenPackDigest(DEMO_TEEN_ID), // Real pack reflections
+    teenId ? getParentTeenPackDigest(teenId) : Promise.resolve([]),
   ]);
 
   // Use real data if available, otherwise fallback to mock
@@ -243,7 +244,7 @@ export default async function ParentHomePage() {
             insights here are sharper.
           </p>
         </div>
-        <Link className="parent-cta-btn" href="/parent/survey">
+        <Link className="parent-cta-btn" href="/survey/parent">
           Open survey
         </Link>
       </section>

@@ -1,7 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 
 import { getParentInsightsData } from "../../_lib/portalApi";
 import type { ThinkingTrapTrend, MoodTimelineItem, EngagementStat, VisibilityIndicator } from "../../_lib/parentDataEngine";
+import { resolveParentTeenId } from "../../_lib/sessionContext";
 
 /*
  * ─── PARENT INSIGHTS ─────────────────────────────────────────
@@ -13,8 +16,6 @@ import type { ThinkingTrapTrend, MoodTimelineItem, EngagementStat, VisibilityInd
  * Data fetched from /api/parent/insights with real Prisma queries.
  */
 
-// TODO: Get teenId from auth context
-const DEMO_TEEN_ID = "demo-teen-001";
 
 const TRAP_TRENDS_FALLBACK: ThinkingTrapTrend[] = [
   {
@@ -98,8 +99,10 @@ function trendColor(trend: "rising" | "steady" | "softening") {
 }
 
 export default async function ParentInsightsPage() {
-  // Fetch real data from API
-  const insightsData = await getParentInsightsData(DEMO_TEEN_ID);
+  const teenId = await resolveParentTeenId();
+  const insightsData = teenId
+    ? await getParentInsightsData(teenId)
+    : { trapTrends: [], moodTrajectory: [], engagementStats: [], visibilityIndicators: [] };
 
   const TRAP_TRENDS = insightsData.trapTrends.length > 0
     ? insightsData.trapTrends

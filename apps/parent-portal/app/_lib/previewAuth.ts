@@ -6,6 +6,30 @@ export const PREVIEW_USERNAME =
 export const PREVIEW_PASSWORD =
   process.env.PREVIEW_LOGIN_PASSWORD ?? "betternow";
 
+// ─── Session payload ──────────────────────────────────────────────────────
+// When a real DB user logs in we store a JSON payload as the cookie value.
+// The preview fallback stores the plain PREVIEW_SESSION_VALUE string.
+
+export interface SessionPayload {
+  userId: string;
+  role: string;        // UserRole enum value
+  parentId: string | null;  // ParentProfile.id, null for non-parent roles
+  displayName: string;
+}
+
+export function encodeSession(payload: SessionPayload): string {
+  return Buffer.from(JSON.stringify(payload)).toString("base64");
+}
+
+export function decodeSession(value: string): SessionPayload | null {
+  if (value === PREVIEW_SESSION_VALUE) return null;
+  try {
+    return JSON.parse(Buffer.from(value, "base64").toString("utf8")) as SessionPayload;
+  } catch {
+    return null;
+  }
+}
+
 const PUBLIC_EXACT_PATHS = new Set([
   "/login",
   "/survey/teen",
