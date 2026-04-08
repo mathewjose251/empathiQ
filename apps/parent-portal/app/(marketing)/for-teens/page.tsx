@@ -75,13 +75,13 @@ export default function ForTeensPage() {
             </p>
           </div>
           <div className="lp-card lp-card-cyan">
-            <span className="lp-card-icon">🔒</span>
-            <h3 className="lp-card-title">You control what parents see</h3>
+            <span className="lp-card-icon">🌱</span>
+            <h3 className="lp-card-title">No diagnosis. No labels.</h3>
             <p className="lp-card-body">
-              Parents get a weather report — &quot;improving&quot;,
-              &quot;steady&quot;, &quot;a bit cloudy.&quot; They never see your
-              specific choices, your Pack posts, or your journal. That&apos;s your
-              call, always.
+              EmpathiQ doesn&apos;t tell you what&apos;s wrong with you. It shows
+              you a pattern that showed up this week, gives it a name, and moves
+              on. No clinical language. No permanent record. Just context for
+              what&apos;s already happening in your head.
             </p>
           </div>
         </div>

@@ -245,6 +245,8 @@ const CATEGORIES = [
 export default function ToolboxPage() {
   const teen = useTeen();
   const [expandedToolId, setExpandedToolId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const handleToolClick = (toolId: string) => {
     setExpandedToolId(expandedToolId === toolId ? null : toolId);
@@ -253,8 +255,125 @@ export default function ToolboxPage() {
     }
   };
 
+  const filteredTools = TOOLBOX.filter((t) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.steps.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = activeCategory === "all" || t.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const isSearching = searchQuery.length > 0 || activeCategory !== "all";
+
   return (
     <div className="teen-page teen-fade-in">
+      {/* Header */}
+      <p className="section-heading" style={{ marginBottom: 4 }}>Toolbox</p>
+      <p className="teen-text-muted teen-text-small" style={{ marginBottom: 16 }}>
+        15 tools · +5 XP each
+      </p>
+
+      {/* Search */}
+      <div style={{ position: "relative", marginBottom: 12 }}>
+        <span
+          style={{
+            position: "absolute",
+            left: 13,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: "0.95rem",
+            opacity: 0.5,
+          }}
+        >
+          🔍
+        </span>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search tools..."
+          style={{
+            width: "100%",
+            padding: "10px 12px 10px 36px",
+            borderRadius: 12,
+            border: "1px solid var(--teen-border)",
+            background: "rgba(255,255,255,0.04)",
+            color: "var(--teen-text)",
+            fontSize: "0.9rem",
+            outline: "none",
+            boxSizing: "border-box",
+          }}
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery("")}
+            style={{
+              position: "absolute",
+              right: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "none",
+              border: "none",
+              color: "var(--teen-muted)",
+              fontSize: "1rem",
+              cursor: "pointer",
+              padding: 4,
+            }}
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {/* Category tabs */}
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          overflowX: "auto",
+          paddingBottom: 12,
+          marginBottom: 16,
+          scrollbarWidth: "none",
+        }}
+      >
+        <button
+          onClick={() => setActiveCategory("all")}
+          style={{
+            flexShrink: 0,
+            padding: "7px 13px",
+            borderRadius: 999,
+            border: `1px solid ${activeCategory === "all" ? "var(--teen-accent)" : "var(--teen-border)"}`,
+            background: activeCategory === "all" ? "rgba(6,182,212,0.1)" : "transparent",
+            color: activeCategory === "all" ? "var(--teen-accent)" : "var(--teen-muted)",
+            fontSize: "0.82rem",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+          }}
+        >
+          ✦ All
+        </button>
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.key}
+            onClick={() => setActiveCategory(cat.key)}
+            style={{
+              flexShrink: 0,
+              padding: "7px 13px",
+              borderRadius: 999,
+              border: `1px solid ${activeCategory === cat.key ? "var(--teen-accent)" : "var(--teen-border)"}`,
+              background: activeCategory === cat.key ? "rgba(6,182,212,0.1)" : "transparent",
+              color: activeCategory === cat.key ? "var(--teen-accent)" : "var(--teen-muted)",
+              fontSize: "0.82rem",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {cat.emoji} {cat.label}
+          </button>
+        ))}
+      </div>
+
       {/* Emergency Button */}
       <div className="teen-card teen-mb-16" style={{ borderColor: "var(--teen-rose)", borderWidth: "2px" }}>
         <Link href="/teen/safety">
@@ -262,60 +381,122 @@ export default function ToolboxPage() {
         </Link>
       </div>
 
-      {/* Categories and Tools */}
-      {CATEGORIES.map((category) => {
-        const categoryTools = TOOLBOX.filter((t) => t.category === category.key);
-        return (
-          <div key={category.key} className="teen-mb-16">
-            <h2 style={{ fontSize: "1.125rem", fontWeight: 700 }} className="teen-text-accent teen-mb-8">
-              {category.emoji} {category.label}
-            </h2>
-
-            <div className="tool-grid">
-              {categoryTools.map((tool) => (
+      {/* Search results — flat list */}
+      {isSearching ? (
+        <div>
+          {filteredTools.length === 0 ? (
+            <div className="teen-text-center teen-text-muted" style={{ marginTop: 32 }}>
+              No tools match &ldquo;{searchQuery}&rdquo;
+            </div>
+          ) : (
+            filteredTools.map((tool) => (
+              <div key={tool.id} style={{ marginBottom: 10 }}>
                 <button
-                  key={tool.id}
                   onClick={() => handleToolClick(tool.id)}
-                  className="tool-item"
                   style={{
-                    borderColor: expandedToolId === tool.id ? "var(--teen-accent)" : undefined,
-                    background: expandedToolId === tool.id ? "rgba(6, 182, 212, 0.1)" : undefined,
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "13px 16px",
+                    borderRadius: 14,
+                    border: `1px solid ${expandedToolId === tool.id ? "var(--teen-accent)" : "var(--teen-border)"}`,
+                    background: expandedToolId === tool.id ? "rgba(6,182,212,0.08)" : "rgba(255,255,255,0.03)",
+                    cursor: "pointer",
+                    textAlign: "left",
                   }}
                 >
-                  <div className="tool-icon">{tool.icon}</div>
-                  <div className="teen-text-small">{tool.name}</div>
-                </button>
-              ))}
-            </div>
-
-            {/* Expanded Tool Steps */}
-            {expandedToolId &&
-              TOOLBOX.find((t) => t.id === expandedToolId)?.category === category.key && (
-                <div className="teen-card teen-mt-8 teen-fade-in">
-                  <h3 style={{ fontWeight: 600 }} className="teen-mb-8">
-                    {TOOLBOX.find((t) => t.id === expandedToolId)?.icon}{" "}
-                    {TOOLBOX.find((t) => t.id === expandedToolId)?.name}
-                  </h3>
-                  <ol style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
-                    {TOOLBOX.find((t) => t.id === expandedToolId)?.steps.map((step, idx) => (
-                      <li key={idx} className="teen-text-small">
-                        <span className="teen-text-accent" style={{ fontWeight: 600 }}>{idx + 1}.</span> {step}
-                      </li>
-                    ))}
-                  </ol>
-                  <div className="teen-mt-8 social-proof">
-                    <span className="teen-text-accent">+5 XP earned!</span>
+                  <span style={{ fontSize: "1.4rem" }}>{tool.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--teen-text)" }}>
+                      {tool.name}
+                    </span>
+                    <span
+                      style={{
+                        display: "block",
+                        fontSize: "0.78rem",
+                        color: "var(--teen-muted)",
+                        textTransform: "capitalize",
+                        marginTop: 2,
+                      }}
+                    >
+                      {tool.category}
+                    </span>
                   </div>
-                </div>
-              )}
-          </div>
-        );
-      })}
+                  <span style={{ fontSize: "0.8rem", color: "var(--teen-muted)" }}>
+                    {expandedToolId === tool.id ? "▲" : "▼"}
+                  </span>
+                </button>
+                {expandedToolId === tool.id && (
+                  <div className="teen-card teen-fade-in" style={{ marginTop: 6 }}>
+                    <ol style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
+                      {tool.steps.map((step, idx) => (
+                        <li key={idx} className="teen-text-small">
+                          <span className="teen-text-accent" style={{ fontWeight: 600 }}>{idx + 1}.</span> {step}
+                        </li>
+                      ))}
+                    </ol>
+                    <div className="teen-mt-8 social-proof">
+                      <span className="teen-text-accent">+5 XP earned!</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        /* Default: grouped by category */
+        CATEGORIES.map((category) => {
+          const categoryTools = TOOLBOX.filter((t) => t.category === category.key);
+          return (
+            <div key={category.key} className="teen-mb-16">
+              <h2 style={{ fontSize: "1.05rem", fontWeight: 700 }} className="teen-text-accent teen-mb-8">
+                {category.emoji} {category.label}
+              </h2>
+              <div className="tool-grid">
+                {categoryTools.map((tool) => (
+                  <button
+                    key={tool.id}
+                    onClick={() => handleToolClick(tool.id)}
+                    className="tool-item"
+                    style={{
+                      borderColor: expandedToolId === tool.id ? "var(--teen-accent)" : undefined,
+                      background: expandedToolId === tool.id ? "rgba(6, 182, 212, 0.1)" : undefined,
+                    }}
+                  >
+                    <div className="tool-icon">{tool.icon}</div>
+                    <div className="teen-text-small">{tool.name}</div>
+                  </button>
+                ))}
+              </div>
+              {expandedToolId &&
+                TOOLBOX.find((t) => t.id === expandedToolId)?.category === category.key && (
+                  <div className="teen-card teen-mt-8 teen-fade-in">
+                    <h3 style={{ fontWeight: 600 }} className="teen-mb-8">
+                      {TOOLBOX.find((t) => t.id === expandedToolId)?.icon}{" "}
+                      {TOOLBOX.find((t) => t.id === expandedToolId)?.name}
+                    </h3>
+                    <ol style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "12px" }}>
+                      {TOOLBOX.find((t) => t.id === expandedToolId)?.steps.map((step, idx) => (
+                        <li key={idx} className="teen-text-small">
+                          <span className="teen-text-accent" style={{ fontWeight: 600 }}>{idx + 1}.</span> {step}
+                        </li>
+                      ))}
+                    </ol>
+                    <div className="teen-mt-8 social-proof">
+                      <span className="teen-text-accent">+5 XP earned!</span>
+                    </div>
+                  </div>
+                )}
+            </div>
+          );
+        })
+      )}
 
-      {/* Footer */}
       <div className="social-proof teen-mt-16">
         <p className="teen-text-small">
-          💡 Tools work best when you actually use them. Pick one and try it now.
+          💡 Pick one and actually try it. That&apos;s the whole move.
         </p>
       </div>
     </div>
